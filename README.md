@@ -10,7 +10,9 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 
-v 0.1 - 4/1/2022
+### v 0.1 - 4/1/2022
+[TL;DR VIDEO](https://youtu.be/1p84gk1ri6w)
+
 - All Meshes - and their vertex group's weights - are now 99% symmetrical (I still need to work on the shape keys, though). Seriously! Assuming you continue to use the symmetry features of Blender, you shouldn't have anymore symmetry problems with this model.
 - Fixed vertex weight problems with the left elbow - it used to poke through the arm sock while bent, but not anymore!
 - Fixed vertex weight problems with the right ear - it had a blotch of high weight inside the ear, but not anymore!
