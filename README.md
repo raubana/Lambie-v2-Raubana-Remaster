@@ -10,6 +10,11 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 
+### v0.1.2 - 4/3/2022
+- Finished fixing/updating all visemes and facial expression, as well as making sure they were all symmetrical.
+- That's about it, really... Oh, and I did a (test)[https://cdn.discordapp.com/attachments/805718574680506399/960265731902173274/lambie_raubana_remaster_visemes_test.webm].
+
+
 ### v 0.1.1 - 4/2/2022
 [TL;DR VIDEO](https://youtu.be/WGvrvBIfjzU)
 
