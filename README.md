@@ -10,15 +10,38 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 
+### v 0.1.1 - 4/2/2022
+[TL;DR VIDEO](https://youtu.be/WGvrvBIfjzU)
+
+- Everything that can be symmetrical should be 100% symmetrical now! You should no longer need to use topology mirroring.
+- Made ALL shape keys on ALL Meshes symmetrical.
+- Reorganized many objects - mostly the ones for the head - to clean up the model a bit. The ponytail also sits outside of the HeadStuff Object now. Couldn't figure out a way to make it work within the HeadStuff Object that was clean.
+- Redid the mouth so that the facial shape keys (such as the visemes) look better (I still need to go through and update 95% of the shape keys that were affected by this change).
+- Redid the AA, CH, DD, E, and FF visemes from scratch.
+- Added eyes! One unique Object (and model) for each eye so they can be reskined separately in Unity, should someone desire to.
+- Added a shader for the eyes. It's nothing special, and doesn't look anything like the one in Unity, but it gets the job done.
+- Renamed the eye bones, plus added "_hack" child bones that the eyes are parented to so they can be easily animated (Just don't forget that the eye shader the Lambies come with makes the eyes look at the camera from certian angles and distances, meaning you'll also need to tweak your Material parameters in order to animate the eyes properly).
+- Renamed the breast bones to Breast_root.L/R and Breast.L/R.
+- Removed the spacer shape keys from the body (the ones that don't do anything).
+- Renamed the Slim shape key to SlimBody.
+- Added the "misc_" prefix to the BreastSize, SlimBody, and Vagina shape keys.
+- Added a shape key called misc_SmoothBody which smooths out the body.
+- Moved the fluff Meshes and the "fluff_" shape keys into a unique Object.
+- Renamed fluff_Pubes and fluff_PubesPPFix to fluff_Pubic and fluff_Pubic_PPFix, respectively.
+- Tweaked the pubic fluff to move to a correct position during changes to the misc_SlimBody and misc_SmoothBody shape keys.
+- Made the area where the labia shows up smoother, then fixed the misc_Vagina shape key that broke because of that change.
+- Cleaned up a bunch of orphan data from the Blender file.
+
+
 ### v 0.1 - 4/1/2022
 [TL;DR VIDEO](https://youtu.be/1p84gk1ri6w)
 
-- All Meshes - and their vertex group's weights - are now 99% symmetrical (I still need to work on the shape keys, though). Seriously! Assuming you continue to use the symmetry features of Blender, you shouldn't have anymore symmetry problems with this model.
+- All Meshes - and their vertex group's weights - are now 99% symmetrical (I still need to work on the shape keys, though). Seriously! Assuming you continue to use the symmetry features of Blender, you should have much fewer symmetry problems with this model.
 - Fixed vertex weight problems with the left elbow - it used to poke through the arm sock while bent, but not anymore!
 - Fixed vertex weight problems with the right ear - it had a blotch of high weight inside the ear, but not anymore!
 - Fixed spelling errors.
 - Renamed Objects, Meshes, and Materials to more standardized names. OBJECT_mesh, Clothing_material, etc...
-- Added custom-made shaders in the Blender file for every material to give an idea of what the model will look like once exported into Unity. Note: it's not 100% identical, and also depends on which shader and parammeter values are used within Unity.
+- Added custom-made shaders in the Blender file for every material to give an idea of what the model will look like once exported into Unity. Note: it's not 100% identical, and also depends on which shader and parameter values are used within Unity.
 - Changed all clothing Objects to use the same Clothing Material.
 - Moved some stuff into their own Objects:
   - collar
