@@ -10,9 +10,19 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 
+### v0.1.3 - 4/5/2022
+[TL;DR VIDEO](https://youtu.be/Pb3Ra5HmcqQ)
+- Added nipples and nipple piercings! For the nipples, I'm using the first version of my [Lambie v2 Seamless Nipples asset](https://raubana.gumroad.com/l/lambie2_nipples_v2) (BTW, the newer versions are better and there are free updates). For the piercings, I reused the models from my free "nips and tips" asset posted on the FoxHoleVR Discord, which I also made symmetrical.
+- Added a Misc grouping, which is where the Fluff Object and the Nipples Object exist.
+- Fixed the ponytail mesh.
+- Tweaked the ponytail armature to more accurately match that of the ponytail model.
+- Lightly corrected the antlers' position, as it was offset.
+- Updated color space on pretty much everything!
+
+
 ### v0.1.2 - 4/3/2022
 - Finished fixing/updating all visemes and facial expression, as well as making sure they were all symmetrical.
-- That's about it, really... Oh, and I did a (test)[https://cdn.discordapp.com/attachments/805718574680506399/960265731902173274/lambie_raubana_remaster_visemes_test.webm].
+- That's about it, really... Oh, and I did a [test](https://youtu.be/koyTyDUYci4).
 
 
 ### v 0.1.1 - 4/2/2022
@@ -79,6 +89,6 @@ Notes:
 3. I plan to make a template Unity project for this avatar. It's going to be great!
 4. In the future, more shape keys will be added and some existing ones will be modified. I might even remove some.
 5. In the future, more bones will be added to the armature and some existing ones will be modified.
-6. In the future, more Meshes will be added added.
+6. In the future, more Meshes will be added.
 7. In the future, more Textures will be added and some existing ones will be modified.
 8. There may even be some future changes I forgot to list here.
