@@ -9,6 +9,37 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 
 ## Change Log:
+### v0.1.4 - 4/16/2022
+[TL;DR VIDEO](https://youtu.be/gqvzrNFIj6M)
+- Added some new shape keys! We've now got mouth_Grin, mouth_CheekySmile, and eyes_Smile.
+- Added a Tongue_root and Tongue bone to the armature. The Tongue bone is left disconnected from the Tongue_root to allow for stretching.
+- Also modified the tongue to be affected by these new bones. This is to allow for well timed and controlled animations during specific expressions so the tongue doesn't clip through parts of the mouth. Speaking of which...
+- Modified the mouth_Blep and mouth_Lewd shape keys to stop the tongue from automatically exiting the mouth.
+- Made sure the new Tongue vertex weights were symmetrical. I gotchu, fam.
+- Cleaned up all of the viseme and expression shape keys so that only the relevant parts of the face move. A whole bunch had problems where the shape key was thought to be symmetrical but was a bunch of vertices were moved to the same spot when snapped to symmetry.
+- Repaired the mouth_BigScaredFrown and mouth_BigStupidGrin shape keys.
+- Improved the vrc.v_blink shape key and copied it to the eyes_Closed shape key.
+- Fixed some weird issues with the inside corners of the eyes for the eyes_Sexy shape key.
+- Redid the eyes_Angry shape key from scratch. Now the forehead moves with the eyebrows.
+- Modified the eyes_Raised shape key so the forehead moves with the eyebrows.
+- Modified the eyes_Sexy shape key so the forehead moves with the eyebrows slightly.
+- Made the ring piercings smoother by adding more polygons.
+- Cut up the N-Gons in the Collar mesh to make them into quads.
+- Connected a bunch of bones in the ponytail armature that weren't connected for some reason.
+- Moved the ponytail armature back into the main armature and moved the PonyTail object to the HeadStuff grouping.
+- Tweaked the ponytail bones so they're nice and centered inside the ponytail mesh.
+- Connected the Neck bone to the Head bone.
+- Disconnected the Collar bone from the Neck bone and connected it to the Chest bone instead.
+- Changed the normal map for the eyes to the "B2" variant. Still noticing some weirdness though.
+- Removed a bunch of unused vertex groups from the Fluff Object.
+- Renamed the body albedo textures to use a Body_AlbedoTransparency_VARIANT convention.
+- Renamed the hair albedo textures to use a Hair_AlbedoTransparency_VARIANT convention.
+- Renamed "Nipples_Albedo_Deer" to "Nipples_AlbedoTransparency_Deer".
+
+Known Issues:
+1. The eyes_Smile shape key is not symmetrical. Every attempt to snap to symmetry fails to work. Will need to be manually repaired in the future.
+2. The eyes_Lewd shape key is very much not symmetrical. Will need to be manually repaired in the future.
+
 
 ### v0.1.3 - 4/5/2022
 [TL;DR VIDEO](https://youtu.be/Pb3Ra5HmcqQ)
