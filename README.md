@@ -3,15 +3,66 @@ A **VERY NSFW** repo of a VRChat avatar originally made by Shiba, improved by Ik
 
 **18+ ONLY! SERIOUSLY, THIS IS SO NOT SAFE FOR WORK, I'M ALMOST TOO TERRIFIED TO PUT IT ON MY GITHUB.**
 
-This is NOT for sale/resale, but is free to be distributed and/or modified. Just don't forget to support and give attribution to the original creators, Shiba and Ikeiwa! Mostly Shiba, though. :)
+This is NOT for sale/resale, but is free to be distributed and/or modified. Just don't forget to support and give attribution to the original creators, Shiba and Ikeiwa!
 
 Also, if you'd be so kind, please [throw a little "support" my way](https://ko-fi.com/raubana), too. I am very broke ;-;
 
 
 ## Change Log:
+### v0.1.5 - 4/25/2022
+[TL;DR VIDEO (this one is quite long, really)](https://youtu.be/xkZAqEyfSL0)
+- Took first steps towards baking a master texture atlas. This should help optimize the avatar in Unity and VRChat, although this is not ready yet.
+- Took steps towards allowing people to fully modify the avatar without needing to pay for software like Substance Painter.
+- Accessed the Substance Painter files to export high resolution textures, including albedo maps WITHOUT baked in ambient occlusion.
+- Added the high res textures to the Blender file and deleted the old image files as they're now redundant, with the exception of the ones for the nipples and the eyes.
+- Modified the Blender file for AO baking. Changes include:
+  - Grouped the original textures into group nodes to be shared between materials.
+  - Made a group node for the general shader. It is shared between every material so they can all be affected by shader changes simultaneously.
+  - Modified the general shader to use the AO to reduce albedo, specular, and smoothness values.
+  - Added custom seams to every object. Please note that these may not match with the seams found on the original UVs for that object.
+  - Removed the pins from the UVs on certain objects. Watch out for that...
+  - Made individual materials for every object. This was done to allow for easily customizing specific objects without having to touch anything else.
+  - Made individual AO textures for every object. This ensures every object's AO can be baked individually and appear correct, since batch AO baking doesn't allow for nuance when it comes to selecting which models will occlude ambient light or not.
+  - Made individual AO UV Maps for every object, named "AO_UVMap". These were unwrapped using the custom seams, optimized to use as much of its texture as possible, then relaxed using Minimize UV Stretch.
+  - Renamed the original UVMap for every object to "Original_UVMap".
+  - Modified the sharp/smooth shading for parts of some objects to help reduce/remove black spots and artifacts generated during AO baking.
+  - Modified some of the vertices on some objects to reduce clipping.
+  - Added a special shape key to some objects named "util_AOBaking" to help with (you'll never guess) baking AO. (Also "AO Face", lul)
+  - Added a pose library to the armature. Made a default pose and an AO baking pose.
+- Baked AO textures for every object. All baking was done with the max bounce Full Global Illumination preset, 1024 samples, and no clamping.
+- Changed the default glasses, the piercings, and the hair clips to no longer use the original textures, since they're not needed - aside from the AO, each one has uniform textures, so setting the inputs to the general shader is enough (It's all getting baked into one atlas anyway, so who cares).
+- Organized all the new textures into a folder called "Raw Textures".
+- Fixed the vertex weights on the latex garters.
+- Reorganized all of the shape keys.
+- Added misc_ArmsSlim shape keys to the body and the arm socks. This reduces the thickness of the forearms. Exact change was ( 0.85, 1.0, 0.75 ) scale set to the forearm bones.
+- Added vrc.v_lookup and vrc.v_lookdown shape keys to the body. These were made from the eye tracking shape keys.
+- Added a nose_Flare shape key to the body.
+- Added a nose_Scrunch shape key to the body and the default piercings.
+- Added a misc_Breathe shape key to the body and the fluff.
+- Removed the deltas around the muzzle for the eye squeeze shape keys.
+- Repaired the symmetry of the eyes_Smile shape key.
+- Redid the eyes_Lewd shape key, since repairing its symmetry was too difficult.
+- Redid the HideBeans shape key from scratch since I apparently broke it at some point on the arm socks.
+- Renamed the "HideBeans" shape key to "misc_HideBeans" on the arm socks.
+- Renamed the "AntlerSize" shape key to "misc_AntlerSize" on the antlers.
+- Renamed the "HornSize" shape key to "misc_HornSize" on the horns.
+- Deleted some weird polygons floating inside of the ponytail's hair tie.
+- Switched all textures to use extend instead of repeat.
+
+Notes:
+1. This still isn't ready for baking to a master texture atlas.
+2. I upgraded from Blender v3.1.0 to v3.1.2 while working on this. Based on what I've read, this should help with some of the AO baking artifacts.
+3. I enabled the Material Utilities addon while working on this. It probably won't affect the file but I felt it was important to share, just in case... plus it was really useful.
+4. The Blender file now takes a while to load and requires a lot of memory because of the massive texture files, plus every material needs to be compiled separately at load time. Your GPU usage will likely increase as well.
+5. Any changes done to the general shader will affect all materials that use it. This may mean having to wait for all of the shaders to compile. This slows things down a bit.
+6. Because of the high memory requirements, it's recommended not clicking out of Blender while an unsaved texture is baking or exists. I can't be certain of this but Blender might unload it if Blender isn't in focus. You should probably also stop anything extra running in the background to free up the CPU, RAM, and GPU for Blender.
+7. For the love of all that's good and Holy, please, if you're going to bake stuff, DO NOT FORGET TO SAVE YOUR TEXTURES!! By default it's going to sit in memory, NOT overwrite the image file.
+8. I may have forgot something here. Please let me know if something is wrong or needs attention.
+
+
 ### v0.1.4 - 4/16/2022
 [TL;DR VIDEO](https://youtu.be/gqvzrNFIj6M)
-- Added some new shape keys! We've now got mouth_Grin, mouth_CheekySmile, and eyes_Smile.
+- Added some new shape keys! We've now got mouth_Grin, mouth_CheekySmile, and eyes_Smile. Also added in eye tracking blend shapes.
 - Added a Tongue_root and Tongue bone to the armature. The Tongue bone is left disconnected from the Tongue_root to allow for stretching.
 - Also modified the tongue to be affected by these new bones. This is to allow for well timed and controlled animations during specific expressions so the tongue doesn't clip through parts of the mouth. Speaking of which...
 - Modified the mouth_Blep and mouth_Lewd shape keys to stop the tongue from automatically exiting the mouth.
