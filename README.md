@@ -10,7 +10,7 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 ### v0.1.6 - 5/11/2022
-[TL;DR VIDEO](DO NOT PUSH) testing
+[TL;DR VIDEO]()
 
 QUICK-NOTES:
 1. I didn't do so good about keeping a comprehensive list of every little change this time around, so I might miss something.
