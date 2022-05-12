@@ -10,13 +10,13 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 ### v0.1.6 - 5/11/2022
-[TL;DR VIDEO]()
+[TL;DR VIDEO](https://youtu.be/DZ_PoFp0PWI)
 
 QUICK-NOTES:
 1. I didn't do so good about keeping a comprehensive list of every little change this time around, so I might miss something.
 2. Modify/Use the scripts at your own risk.
 3. If you're gonna use a script, don't forget to open the System Console first. While this window is in focus, CTRL+C will force a Python script to crash, and CTRL+BREAK will cause ALL OF BLENDER to close instantly.
-4. There are a bunch of labels that have been added through-out the Blender file that the scripts NEED to work, so be careful which things you rename.
+4. There are a bunch of labels that have been added through-out the Blender file that the scripts need to work, so be careful which things you rename and/or what you name them.
 5. All textures must be in sRGB color space before being loaded into Blender. After that, the color space can be set within the Texture Node.
 6. My brain is mush now.
 
@@ -47,35 +47,36 @@ QUICK-NOTES:
     - *VERBOSE_LEVEL* : An integer that determines how detailed and/or frequent the messages are in the system console. Higher numbers means more detailed and more frequent messages.
     - *EVERYTHING* : This is a tuple containing the names of every Object in the collection/scene/blender file/whatever that are considered part of your model. This tuple is used by many methods.
     - *ARMATURE_NAME* : The name of the armature object for your model.
-    - *CYCLES_SAMPLES* : How many samples to use when baking textures (excluding ambient occlusion; see AO_CYCLES_SAMPLES).
+    - *CYCLES_SAMPLES* : How many samples to use when baking textures (excluding ambient occlusion; see *AO_CYCLES_SAMPLES*).
     - *(CYCLES_MAXBOUNCES : How many light bounces you'll allow when baking textures (excluding ambient occlusion; see AO_CYCLES_MAXBOUNCES). Is usually best to leave this at 0.)*
     - *UV_\** : See the section on makeMasterUVMap below for details.
-    - *TEXTURE_SAVEASYOUBAKE* : When True, the texture being baked will be exported as-is after each object finishes baking. This is useful for getting a preview of your results early, but can slow things down a little.
+    - *TEXTURE_SAVEASYOUBAKE* : When True, the texture being baked will be exported as-is just after an object finishes baking. This is useful for getting a preview of your results early, but can slow things down a little.
     - *TEXTURE_SIZE* : The dimensions of the texture files. Generally a good idea to use powers of 2 and to keep the width and the height the same.
     - *(TEXTURE_EXTENSION : The bit of text at the end of a file's name that indicates the file format for the textures. Should be ".png".)*
     - *(TEXTURE_FILEFORMAT : Similar to TEXTURE_EXTENSION, but is used internally as a struct member for Blender's API. Should be "PNG".)*
-    - *(TEXTURE_FOLDER : The location where baked textures are stored. Should be bpy.path.abspath("//../Textures/Baked/").)*
-    - *(TEXTURE_\*_NAME : The name of the texture file for the given property. It's best to leave these alone unless you know what you're doing.)*
-    - *AO_TEXTURE_SIZE* : The dimensions of the ambient occlusion texture. Can be different from TEXTURE_SIZE but should use powers of 2 and have identical width and height. Since AO usually isn't very detailed, having a lower texture size than in TEXTURE_SIZE is useful for speeding things up without making a huge difference in overall appearance.
+    - *(TEXTURE_FOLDER : The location where baked textures are stored. Should be bpy.path.abspath("//Textures/Baked/").)*
+    - *(TEXTURE_\*_NAME : The name of the texture file for the given material property. It's best to leave these alone unless you know what you're doing.)*
+    - *AO_TEXTURE_SIZE* : The dimensions of the ambient occlusion texture. Can be different from *TEXTURE_SIZE* but should use powers of 2 and have identical width and height. Since AO usually isn't very detailed, having a lower texture size than in *TEXTURE_SIZE* is useful for speeding things up without making a huge difference in overall appearance.
     - *AO_CYCLES_SAMPLES* : How many samples to use when baking ambient occlusion. Since AO can't be filtered or post-processed without creating problems, it's best to have this set very high. Minimum would be like 256, but I'd recommend 1024.
     - *AO_CYCLES_MAXBOUNCES* : The maximum number of light bounces you'll allow when baking ambient occlusion. Low values look terrible. I recommend 32.
     - *AO_DEFAULTSETTINGS* : The default settings used for every object during ambient occlusion baking. See *AO_SETTINGS* for details.
     - *AO_SETTINGS* : A dictionary of Object names and their settings to be used during ambient occlusion baking. The final settings for an Object are a combination of the default settings in *AO_DEFAULTSETTINGS* and those specified for that object in *AO_SETTINGS*, if it exists. Otherwise it'll just use the default settings.
       - The keys are the names of the Objects. The value for every key is a dictionary of the settings for that Object.
-        - "skip" : If set to True, this Object will not have its ambient occlusion baked at all. Not recommended since, right now, the margin will fill with values from other Objects and spill into this Objects' uv faces.
+        - "skip" : If set to True, this Object will not have its ambient occlusion baked at all. Not recommended since, right now, the margin is filled with values from other Objects and this will spill into the uv faces for this Object.
         - "pose" : The pose the armature should be in when baking the ambient occlusion for this Object. This is the name of the pose located within the pose library for the armature.
-        - "enabled" : A tuple of names for Objects that should be enabled while this Objects' AO is baked. The Object in question will always be enabled during AO baking. This is merged with the names in the default settings, if "enabled" exist in it.
-        - "disabled" : A tuple of names for Objects that should NOT be enabled while this Objects' AO is baked. Even if the name of an Object is in "enabled", it will be disabled during AO baking if it's in "disabled". This is merged with the names in the default settings, if "disabled" exists in it.
+        - "enabled" : A tuple of names for Objects that should be enabled while this Objects' AO is baked. The Object being baked will always be enabled. This is merged with the names found in the default settings, if "enabled" also exists in it.
+        - "disabled" : A tuple of names for Objects that should NOT be enabled while this Objects' AO is baked. Even if the name of an Object is in "enabled", it will still be disabled during AO baking if it's in "disabled". This is merged with the names in the default settings, if "disabled" also exists in it.
         - "shapekeys" : A dictionary of Object names whose value is a dictionary of shape key names and the value of those shape keys. For example, *"shapekeys" : { "ArmSocks" : { "misc_HideBeans" : 1.0 } }* would specify that the Object ArmSocks should have the shape key misc_HideBeans set to 1.0 while our Object is baking its AO.
       - All settings modified before baking AO for an Object are reset after.
     - *(DISPLACEMENT_\* : Yeah, don't touch these. They're for blurring textures and filling in the margin and stuff. )*
-	- *OVERSIZE_SPRITE_SCALE* : How much the sprites should be scaled up/down by while it's being generated for a given physics body/island. Used for the UV Physics simulation. Higher values means more detail.
-  - Contains a method called **doTheThings** which can be found at the bottom of the script. In it you can change parameters and comment/uncomment lines of code to control what is executed and how it executes when the method runs.
-  - Contains a method called **makeMasterUVMap** which takes all of the objects listed in the constant *EVERYTHING* and makes a UV map that's shared between all of them. This will leave all other UV maps alone, but will replace/create one named "Master_UVMap" (or whatever is set to the constant UV_NAME).
+	- *OVERSIZE_SPRITE_SCALE* : Used by the UV Physics Simulation. This values sets the scale of the islands while its sprite is being generated. Higher values means more detail, but will require more memory and higher transform operation costs.
+  - Contains a method called **doTheThings** which can be found at the bottom of the script. In it you can change parameters and comment/uncomment lines of code to control what is executed and how it executes when the method runs. By default, this method will be called every time the script runs.
+  - Contains a method called **makeMasterUVMap** which takes all of the objects listed in the constant *EVERYTHING* and makes a UV map that's shared between all of them. This will leave all other UV maps alone, but will replace/create one named "Master_UVMap" (or whatever is set in the constant *UV_NAME*).
     - This method comes with two parameters:
-      - *stop_after_unwrap=False* : When True, the method will not perform any further operations on the master UV map once the models have been unwrapped. Otherwise, it will perform Minimize Stretch, Pack, and Average Island Scale afterwards.
-      - *leave_all_selected=False* : When True, after the method finishes executing, edit mode will be active and the objects will be selected, along with the master UV map.
+      - *stop_after_unwrap=False* : When True, the method will not perform any further operations on the master UV map once the models have finished being unwrapped. Otherwise, it will perform Minimize Stretch, Pack, and Average Island Scale operations afterwards.
+      - *leave_all_selected=False* : When True, after the method finishes executing, edit mode will be active and the Objects will be selected, along with the master UV map.
     - This method will run Minimize Stretch on the individual islands using the settings in the constants *UV_MINIMIZESTRETCH_ITERATIONS* and *UV_MINIMIZESTRETCH_ITERATIONS*. The total number of iterations ran is the product of the two constants, but having them separate allows the user to control how often the console can update with the progress vs how much python slows everything down.
+	- This method will attempt to reduce UV stretching on a per-island basis. This makes the overall level of detail (how many pixels exist for a given area) closer to being uniform throughout the island.
     - This method will automatically pack the islands using the margin set in the constant *UV_MARGIN*.
     - This method will attempt to keep the relative island sizes the same when compared to each other and their polygons on the mesh.
   - Contains a method called **usePhysicsToOptimizeMasterUVMap** which uses a 2D physics engine to attempt to pack the master UV map as tightly as possible while maintaining the margin set in the constant *UV_MARGIN*.
@@ -91,34 +92,34 @@ QUICK-NOTES:
     - The Mixing step will first shrink the bodies down a bit, then will spend some time spinning the bodies around the center of the simulation, allowing them to bump and bounce around. This is it average and randomize the distribution of the islands. After a bit the bodies will continue to be mixed while they slowly grow back to normal size.
     - The Shake Up step shakes the bodies randomly to spread them out. The intensity of the shaking will slowly go down as this step progresses until it eventually ends.
     - The Scaling step (arguably the most important one) will gradually test increasing scales for the bodies. It will do this so long as it can have an iteration that ends with all of the bodies touching nothing. If there are too many unsuccessful iterations, the direction of scaling will switch and the bodies will very gradually decrease in scale until either there's a successful iteration or the scale becomes too low. If the scale gets too low, the script will deliberately crash.
-    - The Maximize Radius step will gradually increase the radius around the bodies used for collision detection. The effect is similar to blowing up a balloon or adding layers to a jawbreaker. This is done without changing the scale of the bodies, so the end result will be that the margin around each island is increased, wherever it can be. In other words, it spaces things out nicely.
+    - The Maximize Radius step will gradually increase the radius around the bodies used for collision detection. The effect is similar to blowing up a balloon or adding layers to a jawbreaker. This is done without changing the scale of the bodies, so the end result will be that the margin around each island is increased, wherever it physically can be. Put simply, it spaces things out nicely.
     - The Apply stage simply applies the current simulation state to the master UV map. See the details above about how auto_apply works for more.
     - There are a few constants that affect how this method works:
-        - *UVSIM_EXPORTVIDEO* : When True, cv2 is imported (python's OpenCV wrapper) and the simulation will be exported a video named "output.avi". Using this is usually not recommended as it slows things down, but it's fun for showing off your simulation afterwards.
+        - *UVSIM_EXPORTVIDEO* : When True, cv2 is imported (python's OpenCV wrapper) and the simulation will be exported to a video named "output.avi". Using this is usually not recommended as it slows things down, but it's fun for showing off your simulation afterwards.
         - *UVSIM_PRETTY* : When True, anti-aliasing will be used on text and lines, and slightly more expensive (but nicer looking) transform operations will be used on the sprites.
-        - *UVSIM_CINEMATICS* : When True, additional pauses will occur throughout the steps to allow for an easier viewing experience. This costs a bunch more time, but is really nice for when exporting the simulation as a video.
+        - *UVSIM_CINEMATICS* : When True, additional pauses will occur throughout the steps to allow for an easier viewing experience. This costs a bunch more time, but is really nice for exported videos.
         - *UVSIM_SHOWCENTERDEBUG* : When True, circles are drawn to indicate several spots that are the various "centers" of the bodies. Two represent Center of Gravity, while one represents the center of the sprite. Only really useful for developers.
-        - *UVSIM_FORCEDEBUG* : When True, this forces debug to render, regardless of the current rendering parameters.
-        - *UVSIM_FORCESHOWCOLLISIONS* : When True, this forces the collision debug to be setup and to render during runtime.
-        - *UVSIM_KEEPITSIMPLE* : When True, will suppress certain aspects of the simulation rendering that are known to slow things down (mostly used to turn off drawing the radius debug).
-        - *UVSIM_HOLLOWOUTFATISLANDS* : When True, thicker bodies will only have the faces at and near the edges of the island. This reduces the number of shapes needed to be simulated and can improve performance, although at a higher risk of tunneling.
-  - Contains the method **bakeAO** which will bake an ambient occlusion texture for all objects listed in the EVERYTHING constant using the master UV map. A quick blur pass is applied to help improve the overall look of this texture after baking is finished.
+        - *UVSIM_FORCEDEBUG* : When True, debug will be forced to render.
+        - *UVSIM_FORCESHOWCOLLISIONS* : When True, the collision debug will be setup and forced to render during runtime.
+        - *UVSIM_KEEPITSIMPLE* : When True, certain aspects of the simulation rendering that are known to slow things down will be suppressed (mostly used to turn off drawing the radius debug, since it's pretty expensive).
+        - *UVSIM_HOLLOWOUTFATISLANDS* : When True, thicker bodies will only have the faces at and near the edges of the island created. This reduces the number of shapes needed to be simulated and can improve performance, although at a higher risk of tunneling.
+  - Contains the method **bakeAO** which will bake an ambient occlusion texture for all objects listed in the *EVERYTHING* constant using the master UV map. A quick blur pass is applied to help improve the overall look of this texture after baking is finished.
   - Contains the method **loadAO** which loads the ambient occlusion texture into memory and sets it up within the general shader.
-  - Contains the method **resetAO** which deletes the ambient occlusion texture from memory and resets that part of the general shader changed by loadAO. Should be called if resetEverything isn't, since this is called inside that method.
-  - Contains the method **bakeAlbedo** which will bake an albedo texture for all objects listed in the EVERYTHING constant using the master UV map. If ambient occlusion is loaded when this method runs, it will be baked into this texture.
-  - Contains the method **bakeSpecular** which will bake a specular texture for all objects listed in the EVERYTHING constant using the master UV map. If ambient occlusion is loaded when this method runs, it will be baked into this texture.
-  - Contains the method **bakeSmoothness** which will bake a smoothness texture for all objects listed in the EVERYTHING constant using the master UV map. If ambient occlusion is loaded when this method runs, it will be baked into this texture.
-  - Contains the method **bakeEmissions** which will bake an emissions texture for all objects listed in the EVERYTHING constant using the master UV map. If ambient occlusion is loaded when this method runs, it will be baked into this texture.
-  - Contains the method **bakeNormals** which will bake a normal map texture for all objects listed in the EVERYTHING constant using the master UV map.
+  - Contains the method **resetAO** which deletes the ambient occlusion texture from memory and resets that part of the general shader changed by loadAO. Should be called if resetEverything isn't, since this method (resetAO) is called inside that method (resetEverything).
+  - Contains the method **bakeAlbedo** which will bake an albedo texture for all objects listed in the *EVERYTHING* constant using the master UV map. If ambient occlusion is loaded when this method runs, it will be baked into this texture.
+  - Contains the method **bakeSpecular** which will bake a specular texture for all objects listed in the *EVERYTHING* constant using the master UV map. If ambient occlusion is loaded when this method runs, it will be baked into this texture.
+  - Contains the method **bakeSmoothness** which will bake a smoothness texture for all objects listed in the *EVERYTHING* constant using the master UV map. If ambient occlusion is loaded when this method runs, it will be baked into this texture.
+  - Contains the method **bakeEmissions** which will bake an emissions texture for all objects listed in the *EVERYTHING* constant using the master UV map. If ambient occlusion is loaded when this method runs, it will be baked into this texture.
+  - Contains the method **bakeNormals** which will bake a normal map texture for all objects listed in the *EVERYTHING* constant using the master UV map.
   - *Note that, for all baking methods, the texture will be saved to the hard-drive before being automatically deleted from memory.*
-  - *Note that, for all baking methods, the margin will automatically be filled in using a custom method after baking is finished.*
-  - Contains the method **mergeSpecularAndSmoothness** which temporarily loads the specular and smoothness textures into memory (if they exist) and created a new one where, for every pixel, the color value is copied from the specular texture but the alpha is set as the color value of the smoothness texture.
+  - *Note that, for all baking methods, the margin will automatically be filled in using a custom method after baking finishes.*
+  - Contains the method **mergeSpecularAndSmoothness** which temporarily loads the specular and smoothness textures into memory (if they exist) and created a new one where, for every pixel, the color value is copied from the specular texture but the alpha is set as the color value from the smoothness texture.
   - Contains the method **resetEverything** which you should run before any other method within doTheThings, but is optional for after all the other methods. It more-or-less returns the state of Blender to a more familiar/expected one.
   - There's a bunch more stuff located in this script, but I don't want to go through all of it, and really no one else needs to know how it all works anyway...
 - Renamed the internal text file "File" to "ShrinkToHide" as that was a script that originally came with the Blender file and is designed to do just that.
 - Modified a bunch of the seams for a bunch of the Meshes.
 - Tweaked the general shader.
-- Renamed Collection to AvatarCollection. This will be used for exporting the finished model as an FBX, so look out for that in a future update!
+- Renamed Collection to AvatarCollection. This will be used for exporting the finished model as an FBX, so look out for that feature in a future update!
 - Added a few test textures and models to debugging the scripts.
 
 
