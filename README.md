@@ -22,13 +22,9 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 #### New Python Modules
 - A few new modules were recently added:
-  - SciPy
-  - matplotlib
-  - PyQt5
-  
-  - SciPy is a science and mathematics module which is used here for finding the best-fit curve for a given set of data points. It's needed for the new benchmarking system.
-  - matplotlib is a graphing library for displaying data graphically. This is optional, but the code isn't setup to deal with it not being installed just yet...
-  - PyQt5 is a graphics library for displaying windows containing UIs and much more. matplotlib requires one of a few possible libraries in order to display graphs, and this is a good pick IMO.
+  - SciPy - a science and mathematics module which is used here for finding the best-fit curve for a given set of data points. It's needed for the new benchmarking system.
+  - matplotlib - a graphing library for displaying data graphically. This is optional, but the code isn't setup to deal with it not being installed just yet...
+  - PyQt5 - a graphics library for displaying windows containing UIs and much more. matplotlib requires one of a few possible libraries in order to display graphs, and this is a good pick IMO.
 
 #### Everything Else!
 - Updated **auto_fill_margin** to work with alpha values between 0 and 1. This new algorithm is more expensive but the result is quite beautiful.
