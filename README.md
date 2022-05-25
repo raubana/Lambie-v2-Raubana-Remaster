@@ -9,6 +9,65 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 
 ## Change Log:
+
+### v0.1.7 - 5/25/2022
+[TL;DR VIDEO](https://youtu.be/1yhHw0WMBkE)
+
+#### ANNOUNCEMENT - The Big Code Migration!
+- There was a big transition during this update where most of the python code inside of the blender file was moved outside to their own python files. This was a necessary change for the sake of making things more streamlined, as the script was getting too bloated. I lost track of a few changes along the way :(
+- The "DoEverything" script has been removed and a "RunTheExternalCode" script now exists in its place, since most of the code was moved outside the Blender file.
+- There was an exception, however, which was the code for automatically installing/updating the python modules. That still remains inside of the Blender file as the script named "AutoInstallModules". Again, you will need to run Blender in administrative mode for this script to execute correctly. Check out the v0.1.6 update for more details about how to use this...
+- There were many stylistic changes to the code after the move. Pycharm - the IDE I use outside of Blender - recommends a very specific formatting style based on PEP. Dunno much about it, but I do know that there are standards for writing python scripts and I was not following them very well. To be concise, a bunch of the methods, classes, variables, and arguments were renamed *slightly*. For example, **autoFillMargin** became **auto_fill_margin**.
+- Because of the move, a bunch of the code was no longer compatible with Blender as it was. I had to kinda force Blender to run the external code properly, which resulted in a bunch of changes to the code both inside the Blender file and outside of it. It's all kind of dumb, and I imagine there are programmers out there who would look at my code and cringe, but... I mean, it works, and I tried my best.
+
+#### New Python Modules
+- A few new modules were recently added:
+  - SciPy - a science and mathematics module which is used here for finding the best-fit curve for a given set of data points. It's needed for the new benchmarking system.
+  - matplotlib - a graphing library for displaying data graphically. This is optional, but the code isn't setup to deal with it not being installed just yet...
+  - PyQt5 - a graphics library for displaying windows containing UIs and much more. matplotlib requires one of a few possible libraries in order to display graphs, and this is a good pick IMO.
+
+#### Everything Else!
+- Updated **auto_fill_margin** to work with alpha values between 0 and 1. This new algorithm is more expensive but the result is quite beautiful.
+- Because of how long the new **auto_fill_margin** method takes to execute, a lot more stuff was added to help make this as quick as possible:
+  - The multiprocessing system. This can use multiple CPU cores to allow the method to execute a little quicker. By default this is disabled and only one process will be used for the entire method. To really take advantage of this new system, you will need to first run...
+  - The new benchmarking system. At the top of the **do_the_things** method inside of the "do_the_things.py" file there are commented-out method calls for using this system (as well as the others), plus notes about what they do and which order to run them. When the benchmark is executed, the results of the benchmark are exported to a file named "benchmark.txt" inside the "the_methods" folder. You should only need to run the benchmark once unless you expect different results, in which case you'll want to delete the "benchmark.txt" file first. (If you forget and end up running the benchmark while the "benchmark.txt" file already exists, that's okay; the benchmark system will not overwrite the file, but will instead add the new data to the end of it. Just edit the file to delete the older benchmark data, and finally save.)
+  - The predictive timing system. A method called **generate_bestfit_parameters** can be executed to calculate approximate curves for the data collected during the benchmark. The resulting parameters for these curves are printed to the console for you to copy and paste as the value for the *AUTOFILLMARGIN_BENCHMARK_PARAMETERS* constant located in the "bake.py" file inside of the "constants" folder. Once set, these values can be used by **auto_fill_margin** to predict how long each number of processes would take to execute for the given state, and will use the one predicted to take the least amount of time.
+  - The graphing system. You can graphically display the results of your benchmark and/or your curves on a graph. Very useful for testing and debugging.
+- The updates printed to the console by **auto_fill_margin** now indicate how many processes are being used for the given operation.
+- Added a method called **bleed_opaque_into_non_opaque** which can be executed first inside the **auto_fill_margin** method to help improve the results a bit, since the color of the transparent/translucent pixels do affect the final results a bit.
+- Added new constants for margin settings used during baking. These new constants can be found in the "bake.py" file inside the "constants" folder:
+  - *[AO_]TEXTURE_BAKINGMARGIN* - Sets the size of the margin outside of the UV islands in pixels. Set this to 0 to disable. Set this to -1 to calculate the value automatically based on the *UV_MARGIN* value and the dimensions of the texture. I'd recommend -1.
+  - *[AO_]TEXTURE_BAKINGMARGIN_TYPE* - Here you can set the type of margin-filling-method you want during baking. The options are "EXTEND" and "ADJACENT_FACES". I've found "ADJACENT_FACES" to be my new favorite.
+- Added a sort of Multisample Anti-Aliasing for baking (I'm calling it "Bad AA"). When enabled, this will bake at a higher resolution based on the scale set in the "bake.py" file inside the "constants" folder. The texture will be scaled back down before it is post-processed. Be aware that Bad AA requires a LOT more memory and tends to cause Blender to crash (for me it does, anyway). New constants were added for this system inside the "bake.py" file inside the "constants" folder, such as *[AO_]CYCLES_BADAA* and *[AO_]CYCLES_BADAA_SCALE*.
+- The baking methods take into consideration the Bad AA settings to automatically adjust other settings. For example, the number of samples performed per pixel is divided by the scale used for Bad AA when it's enabled.
+- Because of the crashes, I've added a new constant called *CYCLES_TILESIZE* in the "bake.py" file inside the "constants" folder to set the size of the tiles used during baking. This constant is used by ALL baking operations. To be completely honest, I'm not it makes any difference. I really need to figure out what's causing the crashes... In the meantime, just keep this value relatively low and, after a crash, try, try again!
+- The baking methods no longer save outputs between post-processing operations when *TEXTURE_SAVEASYOUBAKE* is enabled.
+- Inside the "do_the_things.py" file you can now specify if you want post-processing done after baking a given texture. This is done by setting the "skip_pp" keyword-argument to True or False.
+- Fixed the normal map baking! The normal values are now rotated the correct direction based on the original and the final angles of the UV faces.
+- Added a keyword-argument called "bake_type" to the generic baking method... which sets the baking type used... during baking... This was added to help with fixing the problem listed above.
+- Added a **coords_are_in_image** convenience method for telling if a given set of coordinates are a valid pixel location inside of a given texture.
+- Notifications can now be marked as silent, meaning you can receive an update without being pinged! Because of this, the notification system is being used much more frequently now in order to keep you updated, but the overall number of pings has decreased! After all, only a small number of the notifications need your immediate attention. You're welcome :) (As a bonus, I threw in a custom notification sound for your bot. Look in the "Extras" folder for the "telegram_bot_notif.mp3" file.)
+- There are now notifications inside the baking methods which indicate when a post-processing operation is being executed. These notifications are silent.
+- Added a feature to the notification system where it will delay sending a notification for a moment in case another notification might be queued shortly after, to help reduce the number of notifications being sent by combining quickly queued notifications together.
+- The UV Sim system no longer pads the walls of the simulation space with the sim radius. This means more usable space, and more efficient texture/UV map combinations.
+- Created a new class called ProgressPrinter which is used to print progress updates to the console (you know, like 35%... 40%... 45%... etc...). This new class has replaced much of the progress printing code through out many of the python files.
+- Unlike the old progress printing systems, the new ProgressPrinter class focuses strictly on time to determine when to print an update. Currently it's set to print every 5 seconds or more.
+- Tweaked the code that prints deltas to instead use the delta symbol (Δ). Also added showing the delta of the delta, for funzies.
+- Fixed a bug in the AO baking code where the armature wouldn't change pose.
+- Fixed a context error bug with **reset_everything**.
+- Tweaked the general shader node.
+- The AO texture now defaults to a size of 1024x1024 (from 2048x2048) because of all the other changes allowing it to be a lower resolution while still maintaining a nice appearance.
+- Disabled Persistent Data and Use Spacial Splits in the Blender file, as it made little difference during baking and used up more of the already scarce memory.
+- A few seams were tweaked and/or changed on the models, and, as a result, the Master UV map has been redone.
+- Other minor tweaks.
+
+Notes:
+1. Crashing while baking is still a problem. I'm still figuring that out.
+2. The notification system was tweaked quite a bit to work with all the new changes, and for some reason, sometimes, you'll get multiple "... still running..." notifications in a row.
+3. Naturally, there is likely to be some change I've missed. If there's anything you notice not listed here, please let me know.
+4. If you discover any problems not listed here, please let me know.
+
+
 ### v0.1.6 - 5/11/2022
 [TL;DR VIDEO](https://youtu.be/DZ_PoFp0PWI)
 
