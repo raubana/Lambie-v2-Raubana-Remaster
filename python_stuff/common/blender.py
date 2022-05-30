@@ -171,3 +171,11 @@ def reset_ao():
     bpy.ops.object.select_all(action="DESELECT")
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Done.")
+
+
+def find_layer_collection_of_collection(target_collection, current_layer_collection):
+    #https://blenderartists.org/t/make-latest-created-collection-active/1350762/5?u=raubana
+    for layer_collection in current_layer_collection.children:
+        if layer_collection.collection == target_collection:
+            return layer_collection
+    return None

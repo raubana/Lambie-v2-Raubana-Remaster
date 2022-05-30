@@ -39,7 +39,7 @@ def run(skip_mixing=False, skip_shaking_up=False, skip_scaling=False,
         for island_i in range(len(islands)):
             if constants.other.VERBOSE_LEVEL >= 4: common.general.safe_print(" ---- island", island_i, "/", len(islands))
 
-            sim.add_island(obj, obj.data.uv_layers[constants.uv.UV_NAME], islands[island_i])
+            sim.add_island(obj, obj.data.uv_layers[constants.blender.UV_NAME], islands[island_i])
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Simulation prepped. Running simulation...")
 

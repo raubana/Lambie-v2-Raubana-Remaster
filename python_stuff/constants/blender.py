@@ -22,3 +22,11 @@ EVERYTHING = (
 )
 
 ARMATURE_NAME = "Armature"
+
+COLLECTION_NAME = "AvatarCollection"
+
+MATERIAL_NAME = "Master_material"
+
+UV_NAME = "Master_UVMap"
+
+EXPORT_NAME = "Lambie_v2_Export"

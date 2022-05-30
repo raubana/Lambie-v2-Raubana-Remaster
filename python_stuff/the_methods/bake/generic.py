@@ -50,8 +50,8 @@ def generic(image_name, image_size, target_node_label, bake_type="EMIT", color_s
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.shape_key_clear()
         bpy.ops.object.select_all(action="DESELECT")
-        if not constants.uv.UV_NAME in obj.data.uv_layers:
-            raise Exception("Object '" + object_name + "' lacks the expected UV map named '" + constants.uv.UV_NAME + "'")
+        if not constants.blender.UV_NAME in obj.data.uv_layers:
+            raise Exception("Object '" + object_name + "' lacks the expected UV map named '" + constants.blender.UV_NAME + "'")
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - All prepped. Commencing baking...")
     for target_object_name in constants.blender.EVERYTHING:
@@ -80,7 +80,7 @@ def generic(image_name, image_size, target_node_label, bake_type="EMIT", color_s
         uvmap_node = mat.node_tree.nodes.new(type='ShaderNodeUVMap')
         tex_node = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
 
-        uvmap_node.uv_map = constants.uv.UV_NAME
+        uvmap_node.uv_map = constants.blender.UV_NAME
         tex_node.image = target_texture
 
         mat.node_tree.links.new(uvmap_node.outputs[0], tex_node.inputs[0])
@@ -116,7 +116,7 @@ def generic(image_name, image_size, target_node_label, bake_type="EMIT", color_s
             save_mode="INTERNAL",
             margin=margin,
             margin_type=constants.bake.TEXTURE_BAKINGMARGIN_TYPE,
-            uv_layer=constants.uv.UV_NAME
+            uv_layer=constants.blender.UV_NAME
         )
 
         if constants.bake.TEXTURE_SAVEASYOUBAKE:

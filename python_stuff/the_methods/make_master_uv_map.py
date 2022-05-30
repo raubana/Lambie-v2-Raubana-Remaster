@@ -12,19 +12,19 @@ def run(stop_after_unwrap=False, leave_all_selected=False):
 
     if notifications.constants.ENABLED: notifications.constants.HANDLER.add_notification("\U0001f310 Making master UV map", is_silent=False)
 
-    if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Deleting and resetting uv map '" + constants.uv.UV_NAME + "' for everything...")
+    if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Deleting and resetting uv map '" + constants.blender.UV_NAME + "' for everything...")
 
     for object_name in constants.blender.EVERYTHING:
         obj = bpy.context.view_layer.objects[object_name]
 
-        if constants.uv.UV_NAME in obj.data.uv_layers:
-            if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(" -- Deleting uv map '" + constants.uv.UV_NAME + "' from '" + object_name + "'...")
-            obj.data.uv_layers.remove(obj.data.uv_layers[constants.uv.UV_NAME])
+        if constants.blender.UV_NAME in obj.data.uv_layers:
+            if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(" -- Deleting uv map '" + constants.blender.UV_NAME + "' from '" + object_name + "'...")
+            obj.data.uv_layers.remove(obj.data.uv_layers[constants.blender.UV_NAME])
 
-        if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(" -- Creating blank uv map '" + constants.uv.UV_NAME + "' on '" + object_name + "'...")
-        obj.data.uv_layers.new(name=constants.uv.UV_NAME)
+        if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(" -- Creating blank uv map '" + constants.blender.UV_NAME + "' on '" + object_name + "'...")
+        obj.data.uv_layers.new(name=constants.blender.UV_NAME)
 
-    if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Done setting up blank uv map '" + constants.uv.UV_NAME + "' for everything.")
+    if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Done setting up blank uv map '" + constants.blender.UV_NAME + "' for everything.")
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Prepping everything for unwrap...")
 
@@ -38,10 +38,10 @@ def run(stop_after_unwrap=False, leave_all_selected=False):
         obj.select_set(True)
 
         if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(
-            " -- Setting uv map '" + constants.uv.UV_NAME + "' as active on object '" + object_name + "'...")
-        obj.data.uv_layers[constants.uv.UV_NAME].active = True
-        obj.data.uv_layers[constants.uv.UV_NAME].active_render = True
-        obj.data.uv_layers.active = obj.data.uv_layers[constants.uv.UV_NAME]
+            " -- Setting uv map '" + constants.blender.UV_NAME + "' as active on object '" + object_name + "'...")
+        obj.data.uv_layers[constants.blender.UV_NAME].active = True
+        obj.data.uv_layers[constants.blender.UV_NAME].active_render = True
+        obj.data.uv_layers.active = obj.data.uv_layers[constants.blender.UV_NAME]
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Selecting all vertices...")
     bpy.context.area.type = "VIEW_3D"

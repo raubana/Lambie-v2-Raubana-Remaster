@@ -44,6 +44,10 @@ def do_the_things():
 
     tm.reset_everything.run()
 
+    # --------- Exporting ---------
+    # MAKE SURE THE CONSOLE IS OPENED FOR THIS PART.
+    #tm.do_final_export.run(skip_warning=False, merge_meshes=True)
+
     com.general.safe_print(" ===== DONE DOING THE THINGS! ===== ")
 
     if notif.constants.ENABLED: notif.constants.HANDLER.add_notification("\U00002705 doTheThings FINISHED", is_silent=False)

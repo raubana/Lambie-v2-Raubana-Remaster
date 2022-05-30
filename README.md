@@ -10,6 +10,22 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 
+### v0.1.8 - 5/30/2022
+[TL;DR VIDEO](https://youtu.be/SbX9-GDhu5E)
+
+- Not a huge update, but one worth posting. It's finally time!
+- Added automated exporting of your Avatar as an FBX. Features include:
+	- An optional warning and explanation of what is about to happen, as well as a quick math test to ensure the user knows what they're about to do.
+	- Saving a temporary copy of the Blender file to ensure the original isn't modified.
+	- Deleting any UV Map from the Meshes of the temp. file that isn't going to be exported.
+	- Removing all Materials then setting the correct Material to all of the meshes before export.
+	- Optionally merging the Meshes together and then deleting any empty Empties.
+	- Finally, exporting an FBX within the same directory as the Blender file (with optimal settings) before reloading the original Blender file.
+	- *Note: The temp. file will remain in case the user wants to see what the output was or if they want to edit it further.*
+- Some constants were added and others were moved around. Nothing crazy, though.
+- That's... that's about it. :I
+
+
 ### v0.1.7 - 5/25/2022
 [TL;DR VIDEO](https://youtu.be/1yhHw0WMBkE)
 
