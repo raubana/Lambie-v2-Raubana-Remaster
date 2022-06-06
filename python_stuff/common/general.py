@@ -1,4 +1,7 @@
+import os
 import time
+
+import bpy
 
 import constants
 
@@ -32,3 +35,21 @@ class ProgressPrinter(object):
                 self.last_time = this_time
                 self.last_percent = this_percent
                 safe_print(" " + ("-" * self.verbose_level) + " " + str(round(100 * this_percent, 2)) + "%")
+
+
+def safely_delete_file(filepath):
+    safe_extensions = ( ".txt", ".png" )
+
+    filepath = bpy.path.native_pathsep(filepath)
+    filepath = os.path.normpath(filepath)
+
+    if os.path.isfile(filepath):
+        path, ext = os.path.splitext(filepath)
+
+        if ext in safe_extensions:
+            safe_print("Deleting file:", filepath)
+            os.remove(filepath)
+        else:
+            raise Exception("Whoa, whoa! I can't delete that file! "+filepath)
+    else:
+        safe_print("Attempted to delete file but it did not exist:", filepath)

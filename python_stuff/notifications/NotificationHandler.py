@@ -18,8 +18,8 @@ class NotificationHandler(object):
         self.access_lock = None
         self.next_notification = None
         self.next_notification_is_silent = True
-        self.next_notification_time = time.time()
         self.last_notification_time = time.time()
+        self.last_queued_time = time.time()
 
         self.thread = None
 
@@ -51,7 +51,8 @@ class NotificationHandler(object):
         else:
             self.next_notification = new_message
 
-        self.next_notification_time = max(self.next_notification_time, time.time() + notifications.constants.DELAY)
+        self.last_queued_time = time.time()
+
         self.next_notification_is_silent = self.next_notification_is_silent and is_silent
 
         if not prelocked: self.access_lock.release()
@@ -62,31 +63,46 @@ class NotificationHandler(object):
 
         self.access_lock.acquire()
 
-        if (self.next_notification is not None) and (time.time() >= self.next_notification_time or not self.running):
-            if self.failed:
-                common.general.safe_print("NOTIFICATION SYSTEM: _send_notification called after failure. will not attempt sending.")
+        if self.next_notification is not None:
+            send_conditions_met = False
+
+            if self.running:
+                t = time.time()
+
+                if t > self.last_queued_time + notifications.constants.DELAY:
+                    if self.next_notification_is_silent:
+                        if t > self.last_notification_time + notifications.constants.FREQ_SILENT:
+                            send_conditions_met = True
+                    else:
+                        if t > self.last_notification_time + notifications.constants.FREQ:
+                            send_conditions_met = True
             else:
-                url = "https://api.telegram.org/bot" + notifications.constants.TELEGRAM_BOTTOKEN + "/sendMessage"
-                params = {}
-                if self.next_notification_is_silent: params["disable_notification"] = "true"
-                params["chat_id"] = notifications.constants.TELEGRAM_YOURID
-                params["text"] = self.next_notification
+                send_conditions_met = True
 
-                r = requests.get(url, params=params)
+            if send_conditions_met:
+                if self.failed:
+                    common.general.safe_print("NOTIFICATION SYSTEM: _send_notification called after failure. will not attempt sending.")
+                else:
+                    url = "https://api.telegram.org/bot" + notifications.constants.TELEGRAM_BOTTOKEN + "/sendMessage"
+                    params = {}
+                    if self.next_notification_is_silent: params["disable_notification"] = "true"
+                    params["chat_id"] = notifications.constants.TELEGRAM_YOURID
+                    params["text"] = self.next_notification
 
-                if not (r.status_code == requests.codes.ok):
-                    self.failed = True
-                    self.running = False
-                    common.general.safe_print("")
-                    common.general.safe_print("!!! NOTIFICATION SYSTEM FAILURE !!!")
-                    common.general.safe_print("STATUS CODE:", r.status_code)
-                    common.general.safe_print("NOTIFICATION SYSTEM DISABLED")
-                    common.general.safe_print("")
+                    r = requests.get(url, params=params)
 
-            self.last_notification_time = time.time()
-            self.next_notification = None
-            self.next_notification_time = time.time() + notifications.constants.FREQ
-            self.next_notification_is_silent = True
+                    if not (r.status_code == requests.codes.ok):
+                        self.failed = True
+                        self.running = False
+                        common.general.safe_print("")
+                        common.general.safe_print("!!! NOTIFICATION SYSTEM FAILURE !!!")
+                        common.general.safe_print("STATUS CODE:", r.status_code)
+                        common.general.safe_print("NOTIFICATION SYSTEM DISABLED")
+                        common.general.safe_print("")
+
+                self.last_notification_time = time.time()
+                self.next_notification = None
+                self.next_notification_is_silent = True
 
         self.access_lock.release()
 
@@ -123,8 +139,8 @@ class NotificationHandler(object):
         self.failed = False
         self.next_notification = None
         self.next_notification_is_silent = True
-        self.next_notification_time = time.time()
         self.last_notification_time = time.time()
+        self.last_queued_time = time.time()
 
         self.thread = threading.Thread(target=self.__main)
         self.thread.start()

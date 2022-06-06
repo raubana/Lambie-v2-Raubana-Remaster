@@ -9,7 +9,7 @@ import notifications
 
 
 def run( skip_warning=False, merge_meshes=True ):
-    common.general.safe_print("")
+    common.general.safe_print("\n")
     common.general.safe_print(" ===   Exporting FBX   === ")
 
     if notifications.constants.ENABLED: notifications.constants.HANDLER.add_notification(
@@ -28,7 +28,7 @@ def run( skip_warning=False, merge_meshes=True ):
         common.general.safe_print("\n2. The model in the copy will be modified in preparation for Unity/VRChat.")
         common.general.safe_print("\n3. The temporary Blender file will be saved.")
         common.general.safe_print("\n4. The model will be exported as '"+constants.blender.EXPORT_NAME+".fbx' locally.")
-        common.general.safe_print("\t\tAgain, if it already exists, IT MAY BE OVERWRITTEN!")
+        common.general.safe_print("\t\tAgain, if it already exists, IT WILL BE OVERWRITTEN!")
         common.general.safe_print("\n5. The original file will be reopened.")
         common.general.safe_print("\t\tThe copy will NOT be deleted by this script.")
         common.general.safe_print("\n\nIf you understand and are ready to execute, please solve the following:\n")

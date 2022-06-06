@@ -1,4 +1,5 @@
 EVERYTHING = (
+    "Choker",
     "Collar",
     "DefaultGlasses",
     "DefaultPiercings",
@@ -8,6 +9,9 @@ EVERYTHING = (
     "Body",
     "ArmSocks",
     "Boots",
+    "DefaultBikiniBottom",
+    "DefaultBikiniTop",
+    "DefaultBodySuit",
     "LatexSocks",
     "LatexSocks_Garters",
     "ThighHighSocks",

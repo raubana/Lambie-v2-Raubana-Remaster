@@ -13,7 +13,7 @@ import uv_sim
 
 def run(skip_mixing=False, skip_shaking_up=False, skip_scaling=False,
                                           skip_maximize_radius=True, auto_apply=False, leave_all_selected=False):
-    common.general.safe_print("")
+    common.general.safe_print("\n")
     common.general.safe_print(" ===   Using Physics to Optimize Master UV Map   === ")
 
     if notifications.constants.ENABLED: notifications.constants.HANDLER.add_notification(
@@ -199,7 +199,7 @@ def run(skip_mixing=False, skip_shaking_up=False, skip_scaling=False,
             sim.reset_sim_time()
             sim.set_message("Status: ", "Shaking Before Test")
 
-            sim_duration = 1.0
+            sim_duration = 3.0
 
             while sim.sim_time < sim_duration:
                 sim.set_message("Time: ", str(round(sim.sim_time, 1)) + "/" + str(round(sim_duration, 1)))
@@ -277,15 +277,12 @@ def run(skip_mixing=False, skip_shaking_up=False, skip_scaling=False,
 
                     if success:
                         for body in sim.bodies:
-                            for shape in body.shapes:
-                                bb = shape.bb
-                                if bb.left < 0 or bb.bottom < 0 or bb.right > sim.sim_actual_size[0] or bb.top > \
-                                        sim.sim_actual_size[1]:
-                                    if constants.other.VERBOSE_LEVEL >= 4: common.general.safe_print(
-                                        "---- Was marked successful but has shapes outside simulation bounds.")
-                                    sim.set_message("Notes: ", "Island not contained by sim. bounds.")
-                                    success = False
-                                    break
+                            if body.out_of_bounds_level >= 1:
+                                if constants.other.VERBOSE_LEVEL >= 4: common.general.safe_print(
+                                    "---- Was marked successful but has shapes outside simulation bounds.")
+                                sim.set_message("Notes: ", "Island not contained by sim. bounds.")
+                                success = False
+                                break
 
                     if success:
                         sim.set_message("Notes: ", "")
@@ -315,10 +312,6 @@ def run(skip_mixing=False, skip_shaking_up=False, skip_scaling=False,
                         current_scale -= 0.001
                         successful_iterations = 0
                         unsuccessful_iterations = 0
-
-                    if current_scale <= 1.0:
-                        sim.quit()
-                        raise Exception("Failed to use physics to optimize the UV map.")
                 else:
                     successful_iterations = 0
                     unsuccessful_iterations += 1
@@ -355,6 +348,10 @@ def run(skip_mixing=False, skip_shaking_up=False, skip_scaling=False,
             sim.set_message("Unsuccessful Iterations: ", unsuccessful_iterations)
 
             if current_scale != last_scale:
+                if reverse and current_scale <= 1.0:
+                    sim.quit()
+                    raise Exception("Failed to use physics to optimize the UV map.")
+
                 sim.set_island_scale(current_scale)
                 sim.set_message("Scale: ", round(current_scale, 4))
 

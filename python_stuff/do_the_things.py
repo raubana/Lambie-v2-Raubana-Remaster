@@ -24,10 +24,14 @@ def do_the_things():
     #tm.benchmark_autofillmargin.run(image_sizes=((1024,1024),), combos=((1,1),(0,0)), writetofile=False) # optional race. will compare a baseline to your benchmark curves.
 
     # --------- UV Map Generation and Optimization ---------
-    #tm.make_master_uv_map.run(stop_after_unwrap=False, leave_all_selected=True)
+
+    # Minimize Stretch feature isn't working as intended right now. Skip the step to save time.
+    # Both instances of leave_all_selected haven't been working right either.
+
+    #tm.make_master_uv_map.run(skip_minimize_stretch=True, skip_final_touches=False, leave_all_selected=False)
 
     #tm.use_physics_to_optimize_master_uv_map.run(skip_mixing=False, skip_shaking_up=False, skip_scaling=False,
-    #                                             skip_maximize_radius=False, auto_apply=False, leave_all_selected=True)
+    #                                             skip_maximize_radius=False, auto_apply=False, leave_all_selected=False)
 
     # --------- Baking ---------
     #tm.bake.ao.run(skip_pp=False)
@@ -37,12 +41,11 @@ def do_the_things():
     #tm.bake.generic.albedo(skip_pp=False)
     #tm.bake.generic.specular(skip_pp=False)
     #tm.bake.generic.smoothness(skip_pp=False)
+    #tm.merge_specular_and_smoothness.run()
     #tm.bake.generic.emissions(skip_pp=False)
     #tm.bake.generic.normals(skip_pp=False)
 
-    #tm.merge_specular_and_smoothness.run()
-
-    tm.reset_everything.run()
+    #tm.reset_everything.run()
 
     # --------- Exporting ---------
     # MAKE SURE THE CONSOLE IS OPENED FOR THIS PART.

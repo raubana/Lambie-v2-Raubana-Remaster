@@ -19,7 +19,7 @@ import notifications
 
 
 def run(image_sizes=None, combos="SIMPLE", writetofile=True):
-    common.general.safe_print("")
+    common.general.safe_print("\n")
     common.general.safe_print(" ===   Benchmarking auto_fill_margin   === ")
 
     if notifications.constants.ENABLED:

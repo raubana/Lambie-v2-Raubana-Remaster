@@ -11,7 +11,7 @@ except:
 
 
 def run():
-    common.general.safe_print("")
+    common.general.safe_print("\n")
     common.general.safe_print(" ===   Merging Specular and Smoothness Maps   === ")
 
     if notifications.constants.ENABLED: notifications.constants.HANDLER.add_notification(
@@ -47,6 +47,11 @@ def run():
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Done. Saving resulting image...")
 
     specsmooth_img.save(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SPECULARSMOOTHNESS_NAME + constants.texture.TEXTURE_EXTENSION)
+
+    if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Cleaning up images...")
+
+    common.general.safely_delete_file(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SPECULAR_NAME + constants.texture.TEXTURE_EXTENSION)
+    common.general.safely_delete_file(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SMOOTHNESS_NAME + constants.texture.TEXTURE_EXTENSION)
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Done.")
 

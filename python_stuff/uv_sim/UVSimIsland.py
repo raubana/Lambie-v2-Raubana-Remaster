@@ -50,9 +50,12 @@ class UVSimIsland(object):
         self.set_scale(1.0)
 
         bb = self.get_bb_of_shapes()
-        self.fake_radius = math.sqrt((bb.right - bb.left) ** 2 + (bb.top - bb.bottom) ** 2)
+        self.fake_radius = math.sqrt((bb.right - bb.left) ** 2 + (bb.top - bb.bottom) ** 2) / 2
 
         self.generate_sprite()
+
+        self.num_collisions = 0
+        self.out_of_bounds_level = 0
 
     def determine_usable_polys(self):
         # First we make a rect that forms the bounding box of the polygons.
@@ -194,6 +197,7 @@ class UVSimIsland(object):
         center /= weight
 
         for shape in self.shapes:
+            shape.uvsim_body = None
             self.sim.remove_shape(shape)
 
         self.shapes = []
@@ -215,6 +219,7 @@ class UVSimIsland(object):
             shape = pymunk.Poly(self.body, new_points, radius=self.radius)
 
             self.sim.add_shape(shape)
+            shape.uvsim_body = self
 
             shape.friction = 0.0
             shape.elasticity = 0.75
@@ -367,6 +372,21 @@ class UVSimIsland(object):
             new_sprite = pygame.transform.smoothscale(self.sprite, new_size)
         else:
             new_sprite = pygame.transform.scale(self.sprite, new_size)
+
+        if self.out_of_bounds_level >= 2:
+            new_sprite.fill((0,0,0), special_flags=pygame.BLEND_RGB_MULT)
+
+            c = (0,255,255)
+            if self.out_of_bounds_level == 3:
+                c = (255, 0, 0)
+            elif self.out_of_bounds_level == 2:
+                c = (255, 255, 0)
+
+            new_sprite.fill(c, special_flags=pygame.BLEND_RGB_ADD)
+        else:
+            if self.body.is_sleeping:
+                new_sprite.fill((128,128,128), special_flags=pygame.BLEND_RGB_MULT)
+
         new_sprite = pygame.transform.rotate(new_sprite, -math.degrees(self.body.angle))
 
         center = self.body.local_to_world(self.body.center_of_gravity - (self.center_offset * self.scale))

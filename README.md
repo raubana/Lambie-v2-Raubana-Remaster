@@ -10,6 +10,53 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 
+### v0.2 - 6/5/2022
+[TL;DR VIDEO](https://youtu.be/o5PUjDnJuso)
+
+- Added some meshes!
+  - Choker (custom)
+  - Bikini Top (custom)
+  - Bikini Bottom (originally called "Thong", from Ikeiwa's remaster, but now modified by me)
+  - Body Suit (originally from Shiba's v2 Lambie, but now modified by me)
+- Added the new meshes to the *EVERYTHING* constant in the blender constants file.
+- Added AO settings for the new meshes in the baking constants file.
+- Added a Stitching/Tiling system to the baking code. When enabled (using *CYCLES_STITCHING* or *AO_CYCLES_STITCHING*), the textures will be baked onto tiles (of a size determined by the constants *CYCLES_STITCHING_TILESIZE* or *AO_CYCLES_STITCHING_TILESIZE* respectively). Using this functionality requires more time (usually), but reduces the memory (RAM) requirements significantly by offloading most of the data to the hard drive before/during/after baking. After all the tiles are baked, they're stitched together and the result is saved as the new texture.
+  - Only (well, mostly) objects with UV polygons within the texture space for the current tile will be baked. This saves A LOT of time.
+  - In the case where there are no UV polygons in a tile, no tile image will be saved. A check is performed during stitching and clean up so only the tile images that exist will be stitched together/deleted.
+  - Notifications for which object is baking have been disabled. Notifications for which tile is baking have been added.
+- Removed the baking constants *TEXTURE_SAVEASYOUBAKE*, as the feature now defaults to being on.
+- Renamed Bad AA to Bad MSAA, as it's more accurate.
+- Fixed a bug with the baking code where it didn't scale down the number of samples properly whenever Bad MSAA is enabled. Yeah, the scale may be linear, but the number of samples is *exponential*. Whoops. This fix should significantly reduce the number of samples acquired during AO baking when Bad MSAA is enabled, reducing baking time significantly.
+- Added a feature to the unwrapping code so you can specify which shape key should be active before a specific object is unwrapped. Doing this results in the object being unwrapped as if that shape key is the only one that's on. The settings for this can be set with the new *UV_UNWRAP_SETTINGS* constant in the UV constants file. If not set, the code will default to Basis (if it exists).
+  - Currently the only objects that are affected by this change are the ones with the misc_BreastSize shape key: Body, Bikini Top, Nipples, and Nipple Piercings. They're set to have misc_BreastSize as the active shape key during unwrapping. This helps increase the level of detail for the textures on and around the breasts, as the UV islands for the breasts were originally unwrapping waaay too small.
+- Added new keyword arguments to the **make_master_uv_map** method: skip_minimize_stretch and skip_final_touches.
+- Used the Surface Deform modifier to update/add many shape keys. This was mostly used for the misc_Breathe shape keys, but proved useful for others.
+- Modified the **use_physics_to_optimize_master_uv_map** method to shake for a little longer between scaling tests.
+- Modified the UV physics sim code so the sprites appear darker when they're asleep.
+- Modified the UV physics sim code so the sprites appear yellow when any part of any of its shapes are outside the simulation space, and red when the whole body is outside the simulation space.
+- Modified the UV physics sim code so every physics body is being checked every physics iteration for any parts that may be outside of the simulation space.
+- Fixed a bug with the *fake_radius* variable in the UVSimIsland objects. It was supposed to calculate the radius, but has been calculating the diameter instead.
+- Added a new method **safely_delete_file**. This is used by the baking methods to clean up tile images after baking using the new stitching feature, and also the Specular and Smoothness images after the data from the two files have been merged and saved as a new image.
+- Modified the Notification system to keep track of when the last notification was queued. This change removed the need for tracking when the next notification will be sent and, instead, provide mush easier ways to check when to send the next notification.
+- Added a new notification constant *FREQ_SILENT* which determines the delay between notifications given the next one is going to be silent.
+- Modified the Bikini Bottom mesh so it doesn't clip through the tail as much.
+- Fixed some of the vertex weights on the Bikini Bottom.
+- Renamed the "Collar" Bone to "Collar_root". This was done to prevent it from being renamed on export due to it sharing the name of the Collar object (or maybe it was the other way around, I can't remember...).
+- Tweaked the misc_HideBeans shape key on the arm socks to work a little better.
+- Renamed the mesh for the Fluff from "Body_mesh.001" to "Fluff_mesh" (could have sworn I already fixed this, but w/e).
+- Tweaked many UV Seams of many models.
+- Changed the AO settings to replace tuples with sets. Minor change, really.
+- Added bulge... stuff. You know what I mean.
+- Other minor tweaks. I can't keep track of everything, sheesh.
+
+Notes:
+1. I still haven't tested this in VRC.
+2. There is still some symmetry problems with the Bikini Bottom.
+3. It was discovered that the code for Minimizing Stretch hasn't been working. Because of this, it's been disabled to save time.
+4. It was also discovered that having Rotation enabled when using the Pack UV Islands operator could cause some of the islands to become seriously warped (mostly the nipples). This has also been disabled.
+5. Although not new, it was also known that the functionality of the methods **make_master_uv_map** and **use_physics_to_optimize_master_uv_map** when the keyword leave_all_selected is set to True hasn't been working, either. Again, this has been disabled.
+
+
 ### v0.1.8 - 5/30/2022
 [TL;DR VIDEO](https://youtu.be/SbX9-GDhu5E)
 

@@ -97,6 +97,7 @@ class UVSim(object):
             self.walls.append(shape)
 
             self.add_shape(shape)
+            shape.uvsim_body = None
 
             shape.elasticity = 0.75
             shape.friction = 0.0
@@ -149,11 +150,21 @@ class UVSim(object):
                 # Need to add this newer shape to the older shapes' collisions.
                 self.collisions[older_shape.custom_id].append(newer_shape.custom_id)
                 self.total_collisions += 1
+
+                if older_shape.uvsim_body is not None:
+                    older_shape.uvsim_body.num_collisions += 1
+                if newer_shape.uvsim_body is not None:
+                    newer_shape.uvsim_body.num_collisions += 1
         else:
             # A key doesn't exist for this older shape yet, so we have to make one and add the newer shape to its'
             # collisions.
             self.collisions[older_shape.custom_id] = [newer_shape.custom_id, ]
             self.total_collisions += 1
+
+            if older_shape.uvsim_body is not None:
+                older_shape.uvsim_body.num_collisions += 1
+            if newer_shape.uvsim_body is not None:
+                newer_shape.uvsim_body.num_collisions += 1
 
         if uv_sim.constants.FORCE_SHOWCOLLISIONS:
             if older_shape.custom_id in self.collision_cache:
@@ -184,6 +195,12 @@ class UVSim(object):
             if newer_shape.custom_id in self.collisions[older_shape.custom_id]:
                 self.collisions[older_shape.custom_id].remove(newer_shape.custom_id)
                 self.total_collisions -= 1
+
+                if older_shape.uvsim_body is not None:
+                    older_shape.uvsim_body.num_collisions -= 1
+                if newer_shape.uvsim_body is not None:
+                    newer_shape.uvsim_body.num_collisions -= 1
+
                 # If we end up emptying this list of collisions for this shape, we'll remove it from the dictionary
                 # of collisions.
                 if len(self.collisions[older_shape.custom_id]) == 0:
@@ -297,16 +314,49 @@ class UVSim(object):
         self.space.step(dt)
         self.sim_time += dt
 
+        for body in self.bodies:
+            oob_level0 = 0
+            oob_level1 = 0
+            oob_level2 = 0
+
+            pos = body.body.local_to_world(body.body.center_of_gravity)
+            radius = body.fake_radius * body.scale
+
+            if pos.x <= radius or pos.y <= radius or \
+            pos.x >= self.sim_actual_size[0] - radius or \
+            pos.y >= self.sim_actual_size[1] - radius:
+
+                for shape in body.shapes:
+                    bb = shape.bb
+                    if bb.left < 0 or bb.bottom < 0 or \
+                    bb.right > self.sim_actual_size[0] or bb.top > self.sim_actual_size[1]:
+
+                        if bb.right < 0 or bb.top < 0 or \
+                        bb.left > self.sim_actual_size[0] or bb.bottom > self.sim_actual_size[1]:
+                            oob_level2 += 1
+                        else:
+                            oob_level1 += 1
+                    else:
+                        oob_level0 += 1
+            else:
+                oob_level0 += len(body.shapes)
+
+            if oob_level0 == 0 and oob_level1 == 0 and oob_level2 > 0:
+                body.out_of_bounds_level = 3
+            elif oob_level2 > 0:
+                body.out_of_bounds_level = 2
+            elif oob_level1 > 0:
+                body.out_of_bounds_level = 1
+            else:
+                body.out_of_bounds_level = 0
+
         dif = self.sim_time - self.last_checked_escaped_bodies
 
         if int(dif / self.escaped_bodies_check_freq) > 0:
             self.last_checked_escaped_bodies = self.sim_time
 
             for body in self.bodies:
-                pos = body.body.local_to_world(body.body.center_of_gravity)
-
-                if pos.x < -self.sim_radius or pos.y < -self.sim_radius or pos.x > self.sim_actual_size[
-                    0] + self.sim_radius or pos.y > self.sim_actual_size[1] + self.sim_radius:
+                if body.out_of_bounds_level >= 3:
                     common.general.safe_print("Body escaped. Moving back inside the sim...")
 
                     new_pos = pymunk.Vec2d(self.sim_actual_size[0] / 2, self.sim_actual_size[1] / 2)
