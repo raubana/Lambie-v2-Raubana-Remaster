@@ -1,3 +1,9 @@
+COLLECTION_NAME = "AvatarCollection"
+
+EXPORT_NAME = "Lambie_v2_Export"
+
+ARMATURE_NAME = "Armature"
+
 EVERYTHING = (
     "Choker",
     "Collar",
@@ -25,12 +31,6 @@ EVERYTHING = (
     "Nipples"
 )
 
-ARMATURE_NAME = "Armature"
-
-COLLECTION_NAME = "AvatarCollection"
-
 MATERIAL_NAME = "Master_material"
 
 UV_NAME = "Master_UVMap"
-
-EXPORT_NAME = "Lambie_v2_Export"

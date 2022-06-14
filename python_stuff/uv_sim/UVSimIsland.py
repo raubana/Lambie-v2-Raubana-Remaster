@@ -45,7 +45,7 @@ class UVSimIsland(object):
             int(common.new_math.lerp(255, self.color[1], 0.5)),
             int(common.new_math.lerp(255, self.color[2], 0.5))
         )
-        self.line_color = (int(self.color[0] / 3), int(self.color[1] / 3), int(self.color[2] / 3))
+        self.line_color = (self.color[0] // 3, self.color[1] // 3, self.color[2] // 3)
 
         self.set_scale(1.0)
 
@@ -289,10 +289,10 @@ class UVSimIsland(object):
 
                 points.append(
                     (
-                        int((((uvloop.uv[0] * self.sim.sim_actual_size[0]) - bb.left)) / (
-                                self.sim.sim_actual_size[0] / (uv_sim.constants.OVERSIZESPRITESCALE * self.sim.sim_size[0]))),
-                        int((((uvloop.uv[1] * self.sim.sim_actual_size[1]) - bb.bottom)) / (
-                                self.sim.sim_actual_size[1] / (uv_sim.constants.OVERSIZESPRITESCALE * self.sim.sim_size[1]))),
+                        ((uvloop.uv[0] * self.sim.sim_actual_size[0]) - bb.left) // (
+                                self.sim.sim_actual_size[0] / (uv_sim.constants.OVERSIZESPRITESCALE * self.sim.sim_size[0])),
+                        ((uvloop.uv[1] * self.sim.sim_actual_size[1]) - bb.bottom) // (
+                                self.sim.sim_actual_size[1] / (uv_sim.constants.OVERSIZESPRITESCALE * self.sim.sim_size[1])),
                     )
                 )
 
@@ -330,7 +330,7 @@ class UVSimIsland(object):
             pygame.draw.circle(self.sprite, (0, 255, 0), (int(point.x), int(point.y)), 4 * uv_sim.constants.OVERSIZESPRITESCALE)
 
             pygame.draw.circle(self.sprite, (0, 0, 255),
-                               (int(self.sprite.get_width() / 2), int(self.sprite.get_height() / 2)),
+                               (self.sprite.get_width() // 2, self.sprite.get_height() // 2),
                                3 * uv_sim.constants.OVERSIZESPRITESCALE)
 
     def apply_to_uv_map(self):
@@ -338,8 +338,8 @@ class UVSimIsland(object):
         final_pos = self.body.local_to_world(self.body.center_of_gravity)
 
         m = mathutils.Matrix.Translation((
-            (-initial_pos.x) / self.sim.sim_actual_size[0],
-            (-initial_pos.y) / self.sim.sim_actual_size[1],
+            -initial_pos.x / self.sim.sim_actual_size[0],
+            -initial_pos.y / self.sim.sim_actual_size[1],
             0.0
         ))
 
@@ -348,8 +348,8 @@ class UVSimIsland(object):
         m = mathutils.Matrix.Scale(self.scale, 4) @ m
 
         m = mathutils.Matrix.Translation((
-            (final_pos.x) / self.sim.sim_actual_size[0],
-            (final_pos.y) / self.sim.sim_actual_size[1],
+            final_pos.x / self.sim.sim_actual_size[0],
+            final_pos.y / self.sim.sim_actual_size[1],
             0.0
         )) @ m
 
@@ -365,8 +365,8 @@ class UVSimIsland(object):
                 uvloop.uv.y = new_uv.y
 
     def render(self):
-        new_size = (int(self.sprite.get_width() * (self.scale / uv_sim.constants.OVERSIZESPRITESCALE)),
-                    int(self.sprite.get_height() * (self.scale / uv_sim.constants.OVERSIZESPRITESCALE)))
+        new_size = ((self.sprite.get_width() * self.scale) // uv_sim.constants.OVERSIZESPRITESCALE,
+                    (self.sprite.get_height() * self.scale) // uv_sim.constants.OVERSIZESPRITESCALE)
 
         if uv_sim.constants.PRETTY:
             new_sprite = pygame.transform.smoothscale(self.sprite, new_size)
@@ -436,7 +436,7 @@ class UVSimIsland(object):
                 normal_left = pymunk.Vec2d(-vec_left[1], vec_left[0])
                 normal_right = pymunk.Vec2d(vec_right[1], -vec_right[0])
 
-                normal = ((normal_left + normal_right) / 2.0).normalized()
+                normal = ( (normal_left + normal_right) / 2 ).normalized()
 
                 if normal_left.dot(normal_right) < 0:
                     point = (point_mid + (normal_left * self.radius)).rotated(self.body.angle) + self.body.position

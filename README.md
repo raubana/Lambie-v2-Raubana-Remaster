@@ -10,6 +10,12 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 
+### v0.3 - 6/14/2022
+
+# TODO
+## GO HAVE SOME FUN WHILE I CATCH UP
+
+
 ### v0.2 - 6/5/2022
 [TL;DR VIDEO](https://youtu.be/o5PUjDnJuso)
 

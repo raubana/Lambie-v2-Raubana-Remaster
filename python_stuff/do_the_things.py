@@ -1,5 +1,7 @@
 import traceback
 
+import PIL.Image, PIL.ImageFilter
+
 import bpy
 
 import common as com
@@ -29,27 +31,27 @@ def do_the_things():
     # Both instances of leave_all_selected haven't been working right either.
 
     #tm.make_master_uv_map.run(skip_minimize_stretch=True, skip_final_touches=False, leave_all_selected=False)
-
+    
     #tm.use_physics_to_optimize_master_uv_map.run(skip_mixing=False, skip_shaking_up=False, skip_scaling=False,
     #                                             skip_maximize_radius=False, auto_apply=False, leave_all_selected=False)
 
     # --------- Baking ---------
-    #tm.bake.ao.run(skip_pp=False)
+    #tm.bake.ao.run(skip_pp=False, skip_blur=False, attempt_resume=None)
 
     #com.blender.load_ao()
 
-    #tm.bake.generic.albedo(skip_pp=False)
-    #tm.bake.generic.specular(skip_pp=False)
-    #tm.bake.generic.smoothness(skip_pp=False)
-    #tm.merge_specular_and_smoothness.run()
-    #tm.bake.generic.emissions(skip_pp=False)
-    #tm.bake.generic.normals(skip_pp=False)
+    #tm.bake.generic.albedo(skip_pp=False, attempt_resume=None)
+    #tm.bake.generic.specular(skip_pp=False, attempt_resume=None)
+    #tm.bake.generic.smoothness(skip_pp=False, attempt_resume=None)
+    #tm.merge_specular_and_smoothness.run(post_cleanup=False, attempt_resume=None)
+    #tm.bake.generic.emissions(skip_pp=False, attempt_resume=None)
+    #tm.bake.generic.normals(skip_pp=False, attempt_resume=None)
 
     #tm.reset_everything.run()
 
     # --------- Exporting ---------
     # MAKE SURE THE CONSOLE IS OPENED FOR THIS PART.
-    #tm.do_final_export.run(skip_warning=False, merge_meshes=True)
+    #tm.do_final_export.run(skip_warning=False, merge_meshes=False)
 
     com.general.safe_print(" ===== DONE DOING THE THINGS! ===== ")
 

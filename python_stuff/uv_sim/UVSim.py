@@ -27,8 +27,8 @@ class UVSim(object):
         self.sim_size = sim_size
 
         self.sim_rect = pygame.Rect(0, 0, sim_size[0], sim_size[1])
-        self.sim_rect.top = int((window_size[1] - sim_size[1]) / 2)
-        self.sim_rect.right = int(window_size[0] - self.sim_rect.top)
+        self.sim_rect.top = (window_size[1] - sim_size[1]) // 2
+        self.sim_rect.right = window_size[0] - self.sim_rect.top
 
         self.screen = pygame.display.set_mode(self.window_size)
         self.surface = pygame.Surface(self.window_size)
@@ -50,8 +50,8 @@ class UVSim(object):
         self.events = []
 
         self.scale = (
-            self.sim_size[0] / float(sim_actual_size[0]),
-            self.sim_size[1] / float(sim_actual_size[1])
+            self.sim_size[0] / sim_actual_size[0],
+            self.sim_size[1] / sim_actual_size[1]
         )
 
         self.space = pymunk.Space()
@@ -309,7 +309,7 @@ class UVSim(object):
                 self.quit()
                 return
 
-        dt = 1.0 / float(self.step_size)
+        dt = 1.0 / self.step_size
 
         self.space.step(dt)
         self.sim_time += dt
@@ -352,7 +352,7 @@ class UVSim(object):
 
         dif = self.sim_time - self.last_checked_escaped_bodies
 
-        if int(dif / self.escaped_bodies_check_freq) > 0:
+        if dif // self.escaped_bodies_check_freq > 0:
             self.last_checked_escaped_bodies = self.sim_time
 
             for body in self.bodies:
@@ -504,7 +504,12 @@ class UVSim(object):
                     attempts = 10
                     while attempts > 0:
                         try:
-                            pygame.image.save(frame, bpy.path.abspath("//") + "output.bmp")
+                            pygame.image.save(
+                                frame,
+                                common.general.clean_filepath(
+                                    bpy.path.abspath("//") + "output.bmp"
+                                )
+                            )
                             break
                         except Exception as e:
                             common.general.safe_print(e)
@@ -515,7 +520,12 @@ class UVSim(object):
                     attempts = 10
                     while attempts > 0:
                         try:
-                            img = cv2.imread(bpy.path.abspath("//") + "output.bmp", -1)
+                            img = cv2.imread(
+                                common.general.clean_filepath(
+                                    bpy.path.abspath("//") + "output.bmp"
+                                ),
+                                -1
+                            )
                             break
                         except Exception as e:
                             common.general.safe_print(e)

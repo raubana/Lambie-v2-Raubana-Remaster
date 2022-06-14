@@ -66,8 +66,9 @@ def run( skip_warning=False, merge_meshes=True ):
             common.general.safe_print("\nThat is correct. Executing...\n\n")
             time.sleep(3)
 
-    filepath = bpy.path.abspath("//")
+    filepath = common.general.clean_filepath(bpy.path.abspath(bpy.data.filepath))
     current_filename = bpy.path.basename(bpy.data.filepath)
+    filepath = filepath[:-len(current_filename)]
     extension = ".blend"
     if not current_filename.endswith(extension):
         raise Exception("Expected current Blender file to have '"+extension+"' for the extension.")

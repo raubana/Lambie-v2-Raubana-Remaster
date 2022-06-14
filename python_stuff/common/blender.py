@@ -68,7 +68,11 @@ def load_ao():
     if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(" -- Loading AO into memory...")
     bpy.ops.image.open(
         allow_path_tokens=True,
-        filepath=constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_AO_NAME + constants.texture.TEXTURE_EXTENSION,
+        filepath= common.general.clean_filepath(
+            constants.texture.TEXTURE_BAKED_FOLDER + \
+            constants.texture.TEXTURE_AO_NAME + \
+            constants.texture.TEXTURE_EXTENSION
+        ),
         relative_path=True
     )
 

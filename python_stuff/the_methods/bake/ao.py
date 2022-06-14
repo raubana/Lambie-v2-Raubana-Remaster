@@ -1,6 +1,7 @@
 import os
 import math
 import PIL.Image
+import PIL.ImageFilter
 
 import bpy
 import mathutils
@@ -11,11 +12,28 @@ import constants
 import notifications
 
 
-def run(skip_pp=False):
+def run(skip_pp=False, skip_blur=True, attempt_resume=None):
     common.general.safe_print("\n")
     common.general.safe_print(" ===   Baking Ambient Occlusion   === ")
 
     if notifications.constants.ENABLED: notifications.constants.HANDLER.add_notification("\U0001f4a1 Baking AO", is_silent=False)
+
+    attempt_resume_order = (
+        "baking",
+        "stitching",
+        "before pp",
+        "resize",
+        "margin",
+        "blur",
+        "after pp"
+    )
+
+    if attempt_resume is not None:
+        if type(attempt_resume) in (list, tuple):
+            if len(attempt_resume) == 0:
+                raise Exception("Can't resume anywhere without specifying where to resume at.")
+        else:
+            raise Exception("Keyword 'attempt_resume' expects a list or a tuple.")
 
     if bpy.context.scene.render.engine != "CYCLES":
         raise Exception("Can't bake AO in this render engine. Must be set to Cycles.")
@@ -61,7 +79,31 @@ def run(skip_pp=False):
 
     tile_texture = None
     for tile_y in range(num_tiles[1]):
+        if attempt_resume is not None:
+            if attempt_resume[0] == "baking" and tile_y == attempt_resume[2]:
+                if constants.other.VERBOSE_LEVEL >= 1:
+                    common.general.safe_print(" - PARTIALLY RESUMED AT TILE ROW", tile_y)
+            else:
+                if constants.other.VERBOSE_LEVEL >= 1:
+                    common.general.safe_print(" - SKIPPING TILE ROW", tile_y)
+                continue
+
         for tile_x in range(num_tiles[0]):
+            if attempt_resume is not None:
+                if attempt_resume[0] == "baking" and tile_x == attempt_resume[1]:
+                    if len(attempt_resume) <= 3:
+                        attempt_resume = None
+
+                        if constants.other.VERBOSE_LEVEL >= 1:
+                            common.general.safe_print(" - RESUMED AT TILE", tile_x, tile_y)
+                    else:
+                        if constants.other.VERBOSE_LEVEL >= 1:
+                            common.general.safe_print(" - PARTIALLY RESUMED AT TILE", tile_x, tile_y)
+                else:
+                    if constants.other.VERBOSE_LEVEL >= 1:
+                        common.general.safe_print(" - SKIPPING TILE COLUMN", tile_x)
+                    continue
+
             if notifications.constants.ENABLED: notifications.constants.HANDLER.add_notification(
                 " - \U000025A6 TILE ["+str(tile_x)+"/"+str(num_tiles[0])+", "+str(tile_y)+"/"+str(num_tiles[1])+"]")
 
@@ -100,17 +142,17 @@ def run(skip_pp=False):
             # standard, so stitching will be much easier.
 
             m = mathutils.Matrix.Translation((
-                -(tile_x * constants.bake.AO_CYCLES_STITCHING_TILESIZE) / float(size[0]),
-                -(tile_y * constants.bake.AO_CYCLES_STITCHING_TILESIZE) / float(size[1]),
+                -(tile_x * constants.bake.AO_CYCLES_STITCHING_TILESIZE) / size[0],
+                -(tile_y * constants.bake.AO_CYCLES_STITCHING_TILESIZE) / size[1],
                 0.0
             ))
 
             m = mathutils.Matrix.Scale(
-                size[0] / float(tile_dims[0]),
+                size[0] / tile_dims[0],
                 4, mathutils.Vector((1, 0, 0))) @ m
 
             m = mathutils.Matrix.Scale(
-                size[1] / float(tile_dims[1]),
+                size[1] / tile_dims[1],
                 4, mathutils.Vector((0, 1, 0))) @ m
 
             if constants.other.VERBOSE_LEVEL >= 3: common.general.safe_print(" --- Prepping armature '" + constants.blender.ARMATURE_NAME + "'")
@@ -212,6 +254,17 @@ def run(skip_pp=False):
 
             if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(" -- All prepped. Commencing AO baking...")
             for target_object_name in constants.blender.EVERYTHING:
+                if attempt_resume is not None:
+                    if attempt_resume[0] == "baking" and target_object_name == attempt_resume[3]:
+                        attempt_resume = None
+
+                        if constants.other.VERBOSE_LEVEL >= 1:
+                            common.general.safe_print(" - RESUMED AT OBJECT", target_object_name)
+                    else:
+                        if constants.other.VERBOSE_LEVEL >= 1:
+                            common.general.safe_print(" - SKIPPING BAKING OBJECT", target_object_name)
+                        continue
+
                 if obj_has_uv_in_bounds[target_object_name] is not True:
                     if constants.other.VERBOSE_LEVEL >= 3:
                         common.general.safe_print(" --- Object '" + target_object_name + "' not in tile...")
@@ -379,6 +432,8 @@ def run(skip_pp=False):
                         save_mode="INTERNAL",
                         margin=margin,
                         margin_type=constants.bake.AO_TEXTURE_BAKINGMARGIN_TYPE,
+                        use_selected_to_active=False,
+                        use_clear=False,
                         uv_layer=tile_uvmap_name
                     )
 
@@ -457,7 +512,20 @@ def run(skip_pp=False):
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print("\n - AO baking done for all objects.")
 
-    if constants.bake.AO_CYCLES_STITCHING:
+    skip_stitching = False
+    if attempt_resume is not None:
+        if attempt_resume[0] == "stitching":
+            attempt_resume = None
+
+            if constants.other.VERBOSE_LEVEL >= 1:
+                common.general.safe_print(" - RESUMING BEFORE STITCHING")
+        else:
+            skip_stitching = True
+
+            if constants.other.VERBOSE_LEVEL >= 1:
+                common.general.safe_print(" - SKIPPING STITCHING")
+
+    if constants.bake.AO_CYCLES_STITCHING and not skip_stitching:
         #https://stackoverflow.com/questions/10657383/stitching-photos-together
 
         if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Stitching tiles...")
@@ -481,9 +549,10 @@ def run(skip_pp=False):
         for tile_y in range(num_tiles[1]):
             for tile_x in range(num_tiles[0]):
                 tile_name = "TEMP_tile_" + str(tile_x) + "_" + str(tile_y) + constants.texture.TEXTURE_EXTENSION
+                fp = common.general.clean_filepath( constants.texture.TEXTURE_BAKED_FOLDER + tile_name )
 
-                if os.path.isfile(constants.texture.TEXTURE_BAKED_FOLDER + tile_name):
-                    tile = PIL.Image.open(constants.texture.TEXTURE_BAKED_FOLDER + tile_name)
+                if os.path.isfile(fp):
+                    tile = PIL.Image.open(fp)
 
                     pos = [
                         tile_x * constants.bake.AO_CYCLES_STITCHING_TILESIZE,
@@ -495,18 +564,18 @@ def run(skip_pp=False):
                     del tile
                 else:
                     if constants.other.VERBOSE_LEVEL >= 2:
-                        common.general.safe_print(" -- could not find file: " + tile_name)
+                        common.general.safe_print(" -- could not find file: " + fp)
 
         #if constants.bake.AO_CYCLES_BAD_MSAA:
         #    if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Resizing...")
         #    final_image = final_image.resize(constants.texture.TEXTURE_SIZE, resample=PIL.Image.Resampling.LANCZOS)
 
         if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Saving final image...")
-        final_image.save(
+        final_image.save( common.general.clean_filepath(
             constants.texture.TEXTURE_BAKED_FOLDER +
             constants.texture.TEXTURE_AO_NAME +
             constants.texture.TEXTURE_EXTENSION
-        )
+        ))
 
         del final_image
 
@@ -522,9 +591,11 @@ def run(skip_pp=False):
 
     bpy.ops.image.open(
         allow_path_tokens=True,
-        filepath=constants.texture.TEXTURE_BAKED_FOLDER +
+        filepath= common.general.clean_filepath(
+            constants.texture.TEXTURE_BAKED_FOLDER +
             constants.texture.TEXTURE_AO_NAME +
-            constants.texture.TEXTURE_EXTENSION,
+            constants.texture.TEXTURE_EXTENSION
+        ),
         relative_path=True
     )
 
@@ -532,27 +603,102 @@ def run(skip_pp=False):
         constants.texture.TEXTURE_AO_NAME+constants.texture.TEXTURE_EXTENSION
     ]
 
+    if attempt_resume is not None:
+        if attempt_resume[0] == "before pp":
+            attempt_resume = None
+
+            if constants.other.VERBOSE_LEVEL >= 1:
+                common.general.safe_print(" - RESUMING AT POST-PROCESSING")
+
+        elif attempt_resume[0] not in attempt_resume_order or \
+                (attempt_resume_order.index(attempt_resume[0]) >= attempt_resume_order.index("after pp")):
+            skip_pp = True
+
+            if constants.other.VERBOSE_LEVEL >= 1:
+                common.general.safe_print(" - SKIPPING POST-PROCESSING")
+        else:
+            if constants.other.VERBOSE_LEVEL >= 1:
+                common.general.safe_print(" - PARTIALLY RESUMING AT POST-PROCESSING")
+
     if not skip_pp:
         if notifications.constants.ENABLED:
             notifications.constants.HANDLER.add_notification("\U0001f51c Finished baking AO, finishing up")
 
-        if constants.bake.AO_CYCLES_BAD_MSAA:
+        skip_resize = False
+        if attempt_resume is not None:
+            if attempt_resume[0] not in attempt_resume_order or \
+                    (attempt_resume_order.index(attempt_resume[0]) > attempt_resume_order.index("resize")):
+                skip_resize = True
+
+                if constants.other.VERBOSE_LEVEL >= 1:
+                    common.general.safe_print(" - SKIPPING RESIZE")
+            else:
+                attempt_resume = None
+
+                if constants.other.VERBOSE_LEVEL >= 1:
+                    common.general.safe_print(" - RESUMING AT RESIZE")
+
+        if constants.bake.AO_CYCLES_BAD_MSAA and not skip_resize:
             if notifications.constants.ENABLED:
                 notifications.constants.HANDLER.add_notification(" - \U000025F0 Resizing (Bad MSAA)...")
             if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Resizing (Bad MSAA)...")
             target_texture.scale(constants.texture.AO_TEXTURE_SIZE[0], constants.texture.AO_TEXTURE_SIZE[1])
 
-        if notifications.constants.ENABLED:
-            notifications.constants.HANDLER.add_notification(" - \U000025D9 Filling margin...")
-        if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Filling margin...")
-        common.texture.auto_fill_margin(target_texture)
+        skip_margin = False
+        if attempt_resume is not None:
+            if attempt_resume[0] not in attempt_resume_order or \
+                    (attempt_resume_order.index(attempt_resume[0]) > attempt_resume_order.index("margin")):
+                skip_margin = True
 
-        if notifications.constants.ENABLED:
-            notifications.constants.HANDLER.add_notification(" - \U0001f32b Blurring...")
-        if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Blurring texture...")
-        common.texture.blur_once(target_texture)
+                if constants.other.VERBOSE_LEVEL >= 1:
+                    common.general.safe_print(" - SKIPPING FILLING MARGIN")
+            else:
+                attempt_resume = None
+
+                if constants.other.VERBOSE_LEVEL >= 1:
+                    common.general.safe_print(" - RESUMING AT FILLING MARGIN")
+
+        if not skip_margin:
+            if notifications.constants.ENABLED:
+                notifications.constants.HANDLER.add_notification(" - \U000025D9 Filling margin...")
+            if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Filling margin...")
+            common.texture.auto_fill_margin(target_texture)
+
+        if attempt_resume is not None:
+            if attempt_resume[0] not in attempt_resume_order or \
+                    (attempt_resume_order.index(attempt_resume[0]) > attempt_resume_order.index("blur")):
+                skip_blur = True
+
+                if constants.other.VERBOSE_LEVEL >= 1:
+                    common.general.safe_print(" - SKIPPING BLURRING")
+            else:
+                attempt_resume = None
+
+                if constants.other.VERBOSE_LEVEL >= 1:
+                    common.general.safe_print(" - RESUMING AT BLURRING")
+
+        if not skip_blur:
+            if notifications.constants.ENABLED:
+                notifications.constants.HANDLER.add_notification(" - \U0001f32b Blurring...")
+            if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Blurring texture...")
+            fp = common.general.clean_filepath(
+                constants.texture.TEXTURE_BAKED_FOLDER + \
+                constants.texture.TEXTURE_AO_NAME + \
+                constants.texture.TEXTURE_EXTENSION
+            )
+            target_texture.save(fp)
+            pil_image = PIL.Image.open(fp)
+            pil_image.filter(PIL.ImageFilter.GaussianBlur(radius=1))
+            pil_image.save(fp)
+            del pil_image
+            target_texture.reload()
 
         if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Post-Processing Complete.")
+
+    if attempt_resume is not None and attempt_resume[0] == "after pp":
+        attempt_resume = None
+        if constants.other.VERBOSE_LEVEL >= 1:
+            common.general.safe_print(" - RESUMING AFTER POST-PROCESSING")
 
     if constants.other.VERBOSE_LEVEL >= 1:
         common.general.safe_print(" - Saving AO texture externally then deleting internally...")
@@ -564,4 +710,4 @@ def run(skip_pp=False):
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Done.")
 
-    if notifications.constants.ENABLED: notifications.constants.HANDLER.add_notification("\U00002714 AO done", is_silent=False)
+    if notifications.constants.ENABLED: notifications.constants.HANDLER.add_notification("\U00002714 AO complete.", is_silent=False)

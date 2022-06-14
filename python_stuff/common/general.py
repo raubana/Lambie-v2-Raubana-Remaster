@@ -37,11 +37,17 @@ class ProgressPrinter(object):
                 safe_print(" " + ("-" * self.verbose_level) + " " + str(round(100 * this_percent, 2)) + "%")
 
 
+def clean_filepath( fp ):
+    fp = bpy.path.native_pathsep(fp)
+    fp = os.path.normpath(fp)
+
+    return fp
+
+
 def safely_delete_file(filepath):
     safe_extensions = ( ".txt", ".png" )
 
-    filepath = bpy.path.native_pathsep(filepath)
-    filepath = os.path.normpath(filepath)
+    filepath = clean_filepath(filepath)
 
     if os.path.isfile(filepath):
         path, ext = os.path.splitext(filepath)

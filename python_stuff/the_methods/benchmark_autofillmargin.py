@@ -18,7 +18,7 @@ import constants
 import notifications
 
 
-def run(image_sizes=None, combos="SIMPLE", writetofile=True):
+def run(image_sizes=None, combos="SIMPLE", writetofile=True, skip_color_bleed=True):
     common.general.safe_print("\n")
     common.general.safe_print(" ===   Benchmarking auto_fill_margin   === ")
 
@@ -29,6 +29,9 @@ def run(image_sizes=None, combos="SIMPLE", writetofile=True):
         image_sizes = [(2048,2048),]
 
     max_processes = multiprocessing.cpu_count()
+
+    if constants.other.VERBOSE_LEVEL >= 1:
+        common.general.safe_print(" - Found", max_processes, "cores.")
 
     combinations = []
 
@@ -55,7 +58,13 @@ def run(image_sizes=None, combos="SIMPLE", writetofile=True):
     for image_size in image_sizes:
         output_file = None
         if writetofile:
-            output_file = open(os.path.dirname(__file__) + "/benchmark.txt", 'a', encoding="utf-8")
+            output_file = open(
+                common.general.clean_filepath(
+                    os.path.dirname(__file__) + "/benchmark.txt"
+                ),
+                'a',
+                encoding="utf-8"
+            )
 
         stopwatch_results = []
 
@@ -65,7 +74,9 @@ def run(image_sizes=None, combos="SIMPLE", writetofile=True):
 
             bpy.ops.image.open(
                 allow_path_tokens=True,
-                filepath=constants.texture.TEXTURE_MISC_FOLDER + "autofillmargin_benchmarker" + constants.texture.TEXTURE_EXTENSION,
+                filepath= common.general.clean_filepath( constants.texture.TEXTURE_MISC_FOLDER + \
+                                                         "autofillmargin_benchmarker" + \
+                                                         constants.texture.TEXTURE_EXTENSION ),
                 relative_path=True
             )
 
@@ -80,11 +91,14 @@ def run(image_sizes=None, combos="SIMPLE", writetofile=True):
                 common.general.safe_print(" - TESTING", num_processes_collect_data, num_processes_apply_dilation, image_size)
 
             starttime = time.perf_counter()
-            benchmark_data = common.texture.auto_fill_margin(img,
-                             threshold=0.5,
-                             num_processes_collect_data=num_processes_collect_data,
-                             num_processes_apply_dilation=num_processes_apply_dilation,
-                             collect_benchmark_data = True)
+            benchmark_data = common.texture.auto_fill_margin(
+                img,
+                threshold=0.5,
+                num_processes_collect_data=num_processes_collect_data,
+                num_processes_apply_dilation=num_processes_apply_dilation,
+                collect_benchmark_data=True,
+                skip_color_bleed=skip_color_bleed
+            )
             finishtime = time.perf_counter()
 
             diftime = finishtime - starttime
@@ -134,8 +148,10 @@ def run(image_sizes=None, combos="SIMPLE", writetofile=True):
 
 
 def load_data():
-    if os.path.exists(os.path.dirname(__file__) + "/benchmark.txt"):
-        benchmark_file = open(os.path.dirname(__file__) + "/benchmark.txt", "r", encoding="utf-8")
+    fp = common.general.clean_filepath(os.path.dirname(__file__) + "/benchmark.txt")
+
+    if os.path.exists(fp):
+        benchmark_file = open( fp, "r", encoding="utf-8" )
 
         depth = 0
         current_json_text = ""

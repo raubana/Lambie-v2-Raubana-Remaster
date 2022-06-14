@@ -7,5 +7,7 @@ UV_UNWRAP_SETTINGS = {
     "PiercingsNipples" : { "active_shapekey" : "misc_BreastSize" },
     "Body" : { "active_shapekey" : "misc_BreastSize" },
     "DefaultBikiniTop" : { "active_shapekey" : "misc_BreastSize" },
+    "Antlers" : { "active_shapekey" : "misc_AntlerSize" },
+    "Horns" : { "active_shapekey" : "misc_HornSize" },
     "Nipples" : { "active_shapekey" : "misc_BreastSize" }
 }

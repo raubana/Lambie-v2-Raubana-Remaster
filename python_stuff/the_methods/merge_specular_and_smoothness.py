@@ -10,7 +10,7 @@ except:
     common.general.safe_print("WARNING: Missing module 'PIL'. Please run auto_install_modules.")
 
 
-def run():
+def run( post_cleanup=True ):
     common.general.safe_print("\n")
     common.general.safe_print(" ===   Merging Specular and Smoothness Maps   === ")
 
@@ -22,8 +22,16 @@ def run():
     # Gotta do something else here to make this work.
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Loading images into memory...")
 
-    spec_img = PIL.Image.open(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SPECULAR_NAME + constants.texture.TEXTURE_EXTENSION)
-    smooth_img = PIL.Image.open(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SMOOTHNESS_NAME + constants.texture.TEXTURE_EXTENSION)
+    spec_img = PIL.Image.open( common.general.clean_filepath(
+        constants.texture.TEXTURE_BAKED_FOLDER + \
+        constants.texture.TEXTURE_SPECULAR_NAME + \
+        constants.texture.TEXTURE_EXTENSION
+    ))
+    smooth_img = PIL.Image.open( common.general.clean_filepath(
+        constants.texture.TEXTURE_BAKED_FOLDER + \
+        constants.texture.TEXTURE_SMOOTHNESS_NAME + \
+        constants.texture.TEXTURE_EXTENSION
+    ))
     specsmooth_img = PIL.Image.new("RGBA", constants.texture.TEXTURE_SIZE)
 
     spec_pixels = spec_img.load()
@@ -39,19 +47,24 @@ def run():
 
             specular = spec_pixels[x, y]
             # https://handlespixels.wordpress.com/2018/02/06/understanding-gamma-correction/
-            smoothness = int(
-                ((smooth_pixels[x, y] / 255.0) ** 2.2) * 255)  # I'm too lazy to figure this out any further, fuck it.
+            smoothness = \
+                int(((smooth_pixels[x, y] / 255.0) ** 2.2) * 255)  # I'm too lazy to figure this out any further, fuck it.
 
             specsmooth_pixels[x, y] = specular + (smoothness,)
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Done. Saving resulting image...")
 
-    specsmooth_img.save(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SPECULARSMOOTHNESS_NAME + constants.texture.TEXTURE_EXTENSION)
+    specsmooth_img.save( common.general.clean_filepath(
+        constants.texture.TEXTURE_BAKED_FOLDER + \
+        constants.texture.TEXTURE_SPECULARSMOOTHNESS_NAME + \
+        constants.texture.TEXTURE_EXTENSION
+    ))
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Cleaning up images...")
 
-    common.general.safely_delete_file(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SPECULAR_NAME + constants.texture.TEXTURE_EXTENSION)
-    common.general.safely_delete_file(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SMOOTHNESS_NAME + constants.texture.TEXTURE_EXTENSION)
+    if post_cleanup:
+        common.general.safely_delete_file(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SPECULAR_NAME + constants.texture.TEXTURE_EXTENSION)
+        common.general.safely_delete_file(constants.texture.TEXTURE_BAKED_FOLDER + constants.texture.TEXTURE_SMOOTHNESS_NAME + constants.texture.TEXTURE_EXTENSION)
 
     if constants.other.VERBOSE_LEVEL >= 1: common.general.safe_print(" - Done.")
 

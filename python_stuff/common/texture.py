@@ -21,9 +21,9 @@ def coords_to_index(coords, size, channels):
 
 
 def index_to_coords(index, size, channels):
-    i = int(index / channels)
-    x = int(i % size[0])
-    y = int(i / size[0])
+    i = index // channels
+    x = i % size[0]
+    y = i // size[0]
     return x, y
 
 
@@ -54,7 +54,7 @@ def make_blank_image(name, size, color_space="sRGB", fill_color=(0.5, 0.5, 0.5, 
 
 def save_image(image, color_mode, color_depth, save_as_render=True, delete_from_memory=True):
     image.file_format = constants.texture.TEXTURE_FILEFORMAT
-    image.filepath_raw = constants.texture.TEXTURE_BAKED_FOLDER + image.name
+    image.filepath_raw = common.general.clean_filepath(constants.texture.TEXTURE_BAKED_FOLDER + image.name)
 
     image.update()
 
@@ -63,7 +63,7 @@ def save_image(image, color_mode, color_depth, save_as_render=True, delete_from_
     bpy.context.scene.render.image_settings.color_mode = color_mode
 
     if save_as_render:
-        image.save_render(constants.texture.TEXTURE_BAKED_FOLDER + image.name)
+        image.save_render(common.general.clean_filepath(constants.texture.TEXTURE_BAKED_FOLDER + image.name))
     else:
         image.save()
 
@@ -266,8 +266,8 @@ def auto_fill_margin(image, threshold=0.5, num_processes_collect_data=0, num_pro
             if constants.other.VERBOSE_LEVEL >= 4: common.general.safe_print("running " + str(num_processes) + "... ", end='')
 
             for process_number in range(num_processes):
-                range_min = int(math.floor(len(edge_pixels) * process_number / num_processes))
-                range_max = int(math.floor(len(edge_pixels) * (process_number + 1) / num_processes))
+                range_min = (len(edge_pixels) * process_number) // num_processes
+                range_max = (len(edge_pixels) * (process_number + 1)) // num_processes
                 new_queue = multiprocessing.SimpleQueue()
                 new_process = multiprocessing.Process(target=__auto_fill_margin_collect_data,
                                                       args=(edge_pixels[range_min:range_max], tuple(image.size),
@@ -353,8 +353,8 @@ def auto_fill_margin(image, threshold=0.5, num_processes_collect_data=0, num_pro
             if constants.other.VERBOSE_LEVEL >= 4: common.general.safe_print("running " + str(num_processes) + "... ", end='')
 
             for process_number in range(num_processes):
-                range_min = int(math.floor(len(keys) * process_number / num_processes))
-                range_max = int(math.floor(len(keys) * (process_number + 1) / num_processes))
+                range_min = (len(keys) * process_number) // num_processes
+                range_max = (len(keys) * (process_number + 1)) // num_processes
                 new_queue = multiprocessing.SimpleQueue()
                 new_process = multiprocessing.Process(target=__auto_fill_margin_apply_dilation,
                                                       args=(keys[range_min:range_max], values[range_min:range_max],
@@ -400,8 +400,9 @@ def auto_fill_margin(image, threshold=0.5, num_processes_collect_data=0, num_pro
 
         if collect_benchmark_data:
             benchmark_data["iterations"] = benchmark_data["iterations"] + 1
+
         """
-        name = constants.TEXTURE_MISC_FOLDER + "output" + constants.TEXTURE_EXTENSION
+        name = common.general.clean_filepath(constants.TEXTURE_MISC_FOLDER + "output" + constants.TEXTURE_EXTENSION)
 
         image.file_format = constants.TEXTURE_FILEFORMAT
         image.filepath_raw = name
@@ -424,47 +425,3 @@ def auto_fill_margin(image, threshold=0.5, num_processes_collect_data=0, num_pro
     if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(" -- Done.")
 
     if collect_benchmark_data: return benchmark_data
-
-
-def blur_once(image):
-    if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(" -- Moving pixels over to two pixel holders...")
-    old_pixels_holder = common.general.Holder(list(image.pixels))
-    new_pixels_holder = common.general.Holder(list(image.pixels))
-
-    if constants.other.VERBOSE_LEVEL >= 2: common.general.safe_print(" -- Blurring image...")
-
-    progressprinter = common.general.ProgressPrinter(image.size[0] * image.size[1])
-    for y in range(image.size[1]):
-        for x in range(image.size[0]):
-            progressprinter.update(x + (image.size[0] * y))
-
-            pixel_i = coords_to_index((x, y), image.size, image.channels)
-
-            total_weight = 1.0
-            total_color = []
-
-            for channel in old_pixels_holder.held[pixel_i:pixel_i + image.channels]:
-                total_color.append(channel * total_weight)
-
-            for offset in constants.other.DISPLACEMENT_OFFSETS_AND_WEIGHTS:
-                test_coords = [x + offset[0][0], y + offset[0][1]]
-
-                # Clamp it.
-                test_coords[0] = max(min(test_coords[0], image.size[0] - 1), 0)
-                test_coords[1] = max(min(test_coords[1], image.size[1] - 1), 0)
-
-                total_weight += offset[1]
-                pixel_j = coords_to_index(test_coords, image.size, image.channels)
-                color = old_pixels_holder.held[pixel_j:pixel_j + image.channels]
-
-                for j in range(len(color)):
-                    total_color[j] = total_color[j] + color[j] * offset[1]
-
-            for i in range(len(total_color)):
-                total_color[i] = total_color[i] / total_weight
-
-            new_pixels_holder.held[pixel_i:pixel_i + image.channels] = total_color
-
-    image.pixels[:] = new_pixels_holder.held
-
-    image.update()

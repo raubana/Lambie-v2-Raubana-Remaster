@@ -10,9 +10,9 @@ def __auto_fill_margin_collect_data( edge_pixels, image_size, image_channels, pi
             will_dilate = False
 
             #x, y = index_to_coords(i, image_size, image_channels)
-            i2 = int(i / image_channels)
-            x = int(i2 % image_size[0])
-            y = int(i2 / image_size[0])
+            i2 = i // image_channels
+            x = i2 % image_size[0]
+            y = i2 // image_size[0]
 
             for offset_data in kernel:
                 new_coords = (x + offset_data[0][0], y + offset_data[0][1])
