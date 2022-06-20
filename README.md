@@ -10,6 +10,11 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 
+### v0.3.1 patch - 6/20/2022
+## WATCH THIS FOR NOW https://youtu.be/z4U0Z9s_1wg
+- Some quick fixes for bad enough mistakes. TODO
+
+
 ### v0.3 - 6/14/2022
 
 # TODO

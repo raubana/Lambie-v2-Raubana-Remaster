@@ -10,7 +10,7 @@ import common
 
 class NotificationHandler(object):
     def __init__(self):
-        if not notifications.constants.TELEGRAM_YOURID or not notifications.constants.TELEGRAM_BOTTOKEN:
+        if notifications.constants.ENABLED and (not notifications.constants.TELEGRAM_YOURID or not notifications.constants.TELEGRAM_BOTTOKEN):
             raise Exception("Notification System is enabled but not setup. Please set ID and Bot Token in constants.")
 
         self.running = False

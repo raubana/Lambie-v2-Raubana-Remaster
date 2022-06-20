@@ -686,7 +686,7 @@ def run(skip_pp=False, skip_blur=True, attempt_resume=None):
                 constants.texture.TEXTURE_AO_NAME + \
                 constants.texture.TEXTURE_EXTENSION
             )
-            target_texture.save(fp)
+            target_texture.save()
             pil_image = PIL.Image.open(fp)
             pil_image.filter(PIL.ImageFilter.GaussianBlur(radius=1))
             pil_image.save(fp)
