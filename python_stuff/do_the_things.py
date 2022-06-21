@@ -43,7 +43,7 @@ def do_the_things():
     #tm.bake.generic.albedo(skip_pp=False, attempt_resume=None)
     #tm.bake.generic.specular(skip_pp=False, attempt_resume=None)
     #tm.bake.generic.smoothness(skip_pp=False, attempt_resume=None)
-    #tm.merge_specular_and_smoothness.run(post_cleanup=False, attempt_resume=None)
+    #tm.merge_specular_and_smoothness.run(post_cleanup=False)
     #tm.bake.generic.emissions(skip_pp=False, attempt_resume=None)
     #tm.bake.generic.normals(skip_pp=False, attempt_resume=None)
 

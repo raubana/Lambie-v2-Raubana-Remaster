@@ -10,15 +10,77 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 
 ## Change Log:
 
+### v0.3.2 - 6/21/2022
+[TL;DR VIDEO](https://youtu.be/UR2CJpsuVSg)
+- Finally go around to making an update video and writing the change logs for the previous two updates.
+- Deleted the "attempt_resume" keyword argument from the do_the_things script, as the method doesn't have this argument.
+
+
 ### v0.3.1 patch - 6/20/2022
-## WATCH THIS FOR NOW https://youtu.be/z4U0Z9s_1wg
-- Some quick fixes for bad enough mistakes. TODO
+[SOME VIDEO, I DUNNO](https://youtu.be/z4U0Z9s_1wg) 
+- Some quick fixes for bad enough mistakes...
+- Added in the nipple albedo texture I forgot to include during the v0.3 early release.
+- Fixed an error in the NotificationHandler code. My bad.
+- Also fixed an error in the AO baking code. Also my bad.
 
 
 ### v0.3 - 6/14/2022
+- This is an early release. It is likely buggy.
+- Redid the master UV Map again and rebaked the textures.
+- Updated the albedo texture for the nipples.
+- Other minor changes.
 
-# TODO
-## GO HAVE SOME FUN WHILE I CATCH UP
+# Unity Changes
+- Added the first real Unity Project Template!
+
+# Blender Changes
+- Added a script called "PhysBoneShapePreview". Running it will setup a drawing hook that runs every frame, and can only be reset by closing Blender. Bones that have custom float properties named either "pb_r_h" (for PhysBone Radius Head) or "pb_r_t" (for PhysBone Radius Tail) will have a simple PhysBone collision model drawn. This is helpful for lining up the bones of a model (and what will eventually become PhysBones) to its mesh.
+- Added a script called "ShrinkBodyPart". With it you can easily create shrink and/or hide shape keys.
+- Modified the ponytail mesh and vertex weights. It now curves nicely.
+- Simplified the tail so that it only has three bones instead of five.
+- Split each Ear bone into two, Ear1 and Ear2. Updated the default piercings to work with these new vertex groups.
+- Redid the rigging and weights for the tongue.
+- Deleted the "palettes" of the mouth.
+- Added a poker face shape key.
+- Modified the antlers and horns to grow as their size shape key increases, rather than shrink.
+- The goat horns now curve around when they grow.
+- Added some new "shrink" shape keys.
+- Added a vagina shape key to the body suit.
+
+# Python Changes
+- Added the keyword argument "attempt_resume" to all baking methods. When set, the code will attempt to skip ahead, using the arguments' values to determine where to resume. Right now the list of acceptable values for this keyword argument are as follows:
+  - None if NOT attempting to resume.
+  - A list or a tuple when attempting to resume, where the first element is a string with the name of where to resume at.
+  - For all baking operations, these are the accepted values:
+    - [ "baking", tile_x(int), tile_y(int) ]
+	- [ "baking", tile_x(int), tile_y(int), object_name(str) ]
+	- [ "stitching" ]
+	- [ "before pp" ]
+	- [ "resize" ]
+	- [ "margin" ]
+	- [ "blur" ] (AO ONLY)
+	- [ "after pp" ]
+- Added the keyword argument "skip_blur" to the AO baking method. This defaults to True.
+- Added the keyword argument "skip_color_bleed" to the auto-fill margin bench-marking method. This defaults to True.
+- Added the keyword argument "post_cleanup" to the specular and smoothness merging method.
+- Set arguments - "use_selected_to_active" and "use_clear" - to the baking operations to prevent exceptions/errors from occurring at runtime.
+- Deleted the **blur_once** method. Replaced the one instance of it being used with a PIL version within the AO baking code.
+- Added a filepath cleaning method called **clean_filepath**. Added it to many different locations through-out the code where files are loaded/writed/saved.
+- Updated the **reset_everything** method to reset hiding for every object and the armature. Also added resetting shape keys and transforms.
+- Added the antlers and the horns to the UV settings so they're at full size during the unwrapping process.
+- Modified the AO settings to use the newer "shrink" shape keys.
+- Removed "HairClips" from the enabled objects of the default AO baking settings.
+- Tweaked other values in the baking constants file.
+- Modified instances of arithmetic where division is performed, followed by rounding down, to instead use the newer "floor division" operator ('/' to '//').
+- The auto-fill benchmark is now slightly more verbose.
+- Increased default size of the AO texture from (1024,1024) to (2048,2048).
+- Minor tweaks to some notification messages.
+
+Notes:
+1. The code that automatically calculates the baking margin sizes when also doing stitching/tiling seems to be wrong right now. You're better off specifying the size yourself (in pixels).
+2. It's been decided not to include the original male genitals. They will likely be remade from scratch sometime in the future.
+3. Discovered that 8 bits colors for the normal maps is not enough. All normal map textures will be changed to 16 bits in the future. For now this will have to be fixed manually.
+4. The "attempt resume" function is experimental and may not run as expected.
 
 
 ### v0.2 - 6/5/2022
