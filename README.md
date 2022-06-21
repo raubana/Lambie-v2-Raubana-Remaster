@@ -30,10 +30,10 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 - Updated the albedo texture for the nipples.
 - Other minor changes.
 
-# Unity Changes
+#### Unity Changes
 - Added the first real Unity Project Template!
 
-# Blender Changes
+#### Blender Changes
 - Added a script called "PhysBoneShapePreview". Running it will setup a drawing hook that runs every frame, and can only be reset by closing Blender. Bones that have custom float properties named either "pb_r_h" (for PhysBone Radius Head) or "pb_r_t" (for PhysBone Radius Tail) will have a simple PhysBone collision model drawn. This is helpful for lining up the bones of a model (and what will eventually become PhysBones) to its mesh.
 - Added a script called "ShrinkBodyPart". With it you can easily create shrink and/or hide shape keys.
 - Modified the ponytail mesh and vertex weights. It now curves nicely.
@@ -47,7 +47,7 @@ Also, if you'd be so kind, please [throw a little "support" my way](https://ko-f
 - Added some new "shrink" shape keys.
 - Added a vagina shape key to the body suit.
 
-# Python Changes
+#### Python Changes
 - Added the keyword argument "attempt_resume" to all baking methods. When set, the code will attempt to skip ahead, using the arguments' values to determine where to resume. Right now the list of acceptable values for this keyword argument are as follows:
   - None if NOT attempting to resume.
   - A list or a tuple when attempting to resume, where the first element is a string with the name of where to resume at.
